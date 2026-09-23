@@ -1,9 +1,14 @@
-import { notFound } from "next/navigation";
+import {
+  notFound,
+} from "next/navigation";
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000";
 
 interface NewsItem {
-  _id: string;
   title: string;
-  slug: string;
+  titleHtml?: string;
   summary: string;
   content: string;
   imageUrl: string;
@@ -14,7 +19,7 @@ async function getNews(
   slug: string
 ): Promise<NewsItem | null> {
   const response = await fetch(
-    `http://localhost:5000/api/news/${slug}`,
+    `${API_URL}/api/news/${slug}`,
     {
       cache: "no-store",
     }
@@ -26,21 +31,35 @@ async function getNews(
 
   if (!response.ok) {
     throw new Error(
-      "Failed to load news"
+      "Could not load article."
     );
   }
 
   return response.json();
 }
 
-export default async function NewsDetailPage({
+function formatDate(
+  value: string
+) {
+  return new Intl.DateTimeFormat(
+    "en-US",
+    {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }
+  ).format(new Date(value));
+}
+
+export default async function NewsArticlePage({
   params,
 }: {
   params: Promise<{
     slug: string;
   }>;
 }) {
-  const { slug } = await params;
+  const { slug } =
+    await params;
 
   const news =
     await getNews(slug);
@@ -50,90 +69,56 @@ export default async function NewsDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10 sm:py-14">
-      <article className="mx-auto max-w-4xl px-4 sm:px-6">
+    <main className="min-h-screen bg-[#f7f9f7] py-10">
+      <article className="mx-auto max-w-5xl px-4 sm:px-6">
+        <header className="mx-auto max-w-4xl text-center">
+          <div className="flex items-center justify-center gap-3">
+            <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-green-700">
+              News
+            </span>
 
-        <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+            <time className="text-sm text-gray-400">
+              {formatDate(
+                news.createdAt
+              )}
+            </time>
+          </div>
 
-          {news.imageUrl && (
-            <img
-              src={`http://localhost:5000${news.imageUrl}`}
-              alt={news.title}
-              className="max-h-[480px] w-full object-cover"
-            />
+          <div
+            className="mt-5 text-3xl font-bold leading-tight text-gray-950 sm:text-4xl lg:text-5xl [&_h1]:text-5xl [&_h1]:font-bold [&_h2]:text-4xl [&_h2]:font-bold [&_p]:m-0"
+            dangerouslySetInnerHTML={{
+              __html:
+                news.titleHtml ||
+                `<p>${news.title}</p>`,
+            }}
+          />
+
+          {news.summary && (
+            <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-gray-500 sm:text-lg">
+              {news.summary}
+            </p>
           )}
+        </header>
 
-          <div className="p-6 sm:p-8 lg:p-10">
-
-            {news.createdAt && (
-              <p className="text-sm text-gray-400">
-                {new Date(
-                  news.createdAt
-                ).toLocaleDateString()}
-              </p>
-            )}
-
-            <h1 className="mt-2 text-2xl font-bold leading-tight text-gray-900 sm:text-3xl lg:text-4xl">
-              {news.title}
-            </h1>
-
-            {news.summary && (
-              <p className="mt-5 text-lg leading-8 text-gray-600">
-                {news.summary}
-              </p>
-            )}
-
-            <div className="my-7 border-t border-gray-200" />
-
-            <div
-              className="
-                text-base
-                leading-8
-                text-gray-700
-
-                [&_h2]:mb-3
-                [&_h2]:mt-8
-                [&_h2]:text-2xl
-                [&_h2]:font-bold
-                [&_h2]:text-gray-900
-
-                [&_h3]:mb-3
-                [&_h3]:mt-7
-                [&_h3]:text-xl
-                [&_h3]:font-bold
-                [&_h3]:text-gray-900
-
-                [&_p]:my-4
-
-                [&_strong]:font-bold
-                [&_strong]:text-gray-900
-
-                [&_ul]:my-4
-                [&_ul]:list-disc
-                [&_ul]:pl-6
-
-                [&_ol]:my-4
-                [&_ol]:list-decimal
-                [&_ol]:pl-6
-
-                [&_li]:my-1
-
-                [&_blockquote]:my-6
-                [&_blockquote]:border-l-4
-                [&_blockquote]:border-green-600
-                [&_blockquote]:bg-green-50
-                [&_blockquote]:px-5
-                [&_blockquote]:py-3
-                [&_blockquote]:italic
-              "
-              dangerouslySetInnerHTML={{
-                __html:
-                  news.content,
-              }}
+        {news.imageUrl && (
+          <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-3xl border bg-white p-2 shadow-sm">
+            <img
+              src={`${API_URL}${news.imageUrl}`}
+              alt={news.title}
+              className="max-h-[480px] w-full rounded-2xl object-cover"
             />
           </div>
-        </div>
+        )}
 
+        <div className="mx-auto mt-8 max-w-3xl rounded-3xl border border-gray-200 bg-white px-6 py-8 shadow-sm sm:px-9">
+          <div
+            className="text-base leading-8 text-gray-700 [&_h1]:mb-4 [&_h1]:mt-8 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:mb-3 [&_h3]:mt-7 [&_h3]:text-xl [&_h3]:font-bold [&_p]:my-4 [&_ul]:my-5 [&_ul]:list-disc [&_ul]:pl-7 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:pl-7 [&_li]:my-2 [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-green-600 [&_blockquote]:bg-green-50 [&_blockquote]:px-5 [&_blockquote]:py-4 [&_blockquote]:italic"
+            dangerouslySetInnerHTML={{
+              __html:
+                news.content,
+            }}
+          />
+        </div>
       </article>
     </main>
   );

@@ -1,8 +1,13 @@
 import Link from "next/link";
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000";
+
 interface NewsItem {
   _id: string;
   title: string;
+  titleHtml?: string;
   slug: string;
   summary: string;
   imageUrl: string;
@@ -12,113 +17,207 @@ interface NewsItem {
 async function getNews(): Promise<
   NewsItem[]
 > {
-  const response =
-    await fetch(
-      "http://localhost:5000/api/news",
-      {
-        cache: "no-store",
-      }
-    );
+  const response = await fetch(
+    `${API_URL}/api/news`,
+    {
+      cache: "no-store",
+    }
+  );
 
   if (!response.ok) {
     throw new Error(
-      "Failed to load news."
+      "Could not load news."
     );
   }
 
   return response.json();
 }
 
+function date(value: string) {
+  return new Intl.DateTimeFormat(
+    "en-US",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }
+  ).format(new Date(value));
+}
+
 export default async function NewsPage() {
-  const news =
-    await getNews();
+  const news = await getNews();
+
+  const featured = news[0];
+
+  const remaining =
+    news.slice(1);
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10 sm:py-14">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-
-        <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.15em] text-green-700">
+    <main className="min-h-screen bg-[#f7f9f7]">
+      <section className="border-b bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-green-700">
             Mahila SACCOS
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold text-gray-900">
-            News
-          </h1>
+          <div className="mt-2 flex items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-950 sm:text-4xl">
+                News & Updates
+              </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
-            Latest news and
-            updates from Mahila
-            SACCOS.
-          </p>
+              <p className="mt-3 text-sm text-gray-500">
+                Latest announcements,
+                activities and updates
+                from Mahila SACCOS.
+              </p>
+            </div>
+
+            <p className="hidden text-sm text-gray-400 sm:block">
+              {news.length} articles
+            </p>
+          </div>
         </div>
+      </section>
 
-        {news.length === 0 ? (
-          <div className="rounded-2xl border bg-white p-12 text-center text-gray-500">
-            No news available.
-          </div>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {news.map(
-              (item) => (
-                <article
-                  key={
-                    item._id
-                  }
-                  className="overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-                >
-                  {item.imageUrl && (
-                    <Link
-                      href={`/news/${item.slug}`}
-                    >
-                      <img
-                        src={`http://localhost:5000${item.imageUrl}`}
-                        alt={
-                          item.title
-                        }
-                        className="h-52 w-full object-cover"
-                      />
-                    </Link>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        {featured && (
+          <section>
+            <div className="mb-4">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-green-700">
+                Latest News
+              </p>
+
+              <h2 className="mt-1 text-xl font-bold text-gray-900">
+                Latest Update
+              </h2>
+            </div>
+
+            <Link
+              href={`/news/${featured.slug}`}
+              className={`group overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg ${
+                featured.imageUrl
+                  ? "grid lg:grid-cols-[0.9fr_1.1fr]"
+                  : "block"
+              }`}
+            >
+              {featured.imageUrl && (
+                <div className="max-h-[340px] overflow-hidden bg-gray-100">
+                  <img
+                    src={`${API_URL}${featured.imageUrl}`}
+                    alt={featured.title}
+                    className="h-full min-h-[260px] w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                  />
+                </div>
+              )}
+
+              <div
+                className={`flex flex-col justify-center ${
+                  featured.imageUrl
+                    ? "p-7 sm:p-9"
+                    : "p-7 sm:p-10"
+                }`}
+              >
+                <time className="text-xs font-bold uppercase tracking-wider text-green-700">
+                  {date(
+                    featured.createdAt
                   )}
+                </time>
 
-                  <div className="p-5">
-                    {item.createdAt && (
-                      <p className="text-xs text-gray-400">
-                        {new Date(
+                <div
+                  className="mt-4 text-2xl font-bold leading-tight text-gray-950 transition group-hover:text-green-700 sm:text-3xl [&_h1]:text-4xl [&_h1]:font-bold [&_h2]:text-3xl [&_h2]:font-bold [&_p]:m-0"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      featured.titleHtml ||
+                      `<p>${featured.title}</p>`,
+                  }}
+                />
+
+                {featured.summary && (
+                  <p className="mt-4 max-w-3xl text-sm leading-7 text-gray-500 sm:text-base">
+                    {
+                      featured.summary
+                    }
+                  </p>
+                )}
+
+                <span className="mt-6 text-sm font-bold text-green-700">
+                  Read full story →
+                </span>
+              </div>
+            </Link>
+          </section>
+        )}
+
+        {remaining.length > 0 && (
+          <section className="mt-10">
+            <div className="mb-5">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-green-700">
+                More Updates
+              </p>
+
+              <h2 className="mt-1 text-2xl font-bold text-gray-900">
+                Recent News
+              </h2>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {remaining.map(
+                (item) => (
+                  <Link
+                    href={`/news/${item.slug}`}
+                    key={item._id}
+                    className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                  >
+                    {item.imageUrl && (
+                      <div className="aspect-[16/9] overflow-hidden">
+                        <img
+                          src={`${API_URL}${item.imageUrl}`}
+                          alt={item.title}
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                    )}
+
+                    <div
+                      className={`flex flex-1 flex-col ${
+                        item.imageUrl
+                          ? "p-5"
+                          : "p-6"
+                      }`}
+                    >
+                      <time className="text-xs font-bold uppercase tracking-wider text-green-700">
+                        {date(
                           item.createdAt
-                        ).toLocaleDateString()}
-                      </p>
-                    )}
+                        )}
+                      </time>
 
-                    <Link
-                      href={`/news/${item.slug}`}
-                    >
-                      <h2 className="mt-2 text-lg font-bold leading-7 text-gray-900 transition hover:text-green-700">
-                        {
-                          item.title
-                        }
-                      </h2>
-                    </Link>
+                      <div
+                        className="mt-3 line-clamp-3 text-lg font-bold leading-7 text-gray-950 group-hover:text-green-700 [&_h1]:text-xl [&_h2]:text-lg [&_p]:m-0"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            item.titleHtml ||
+                            `<p>${item.title}</p>`,
+                        }}
+                      />
 
-                    {item.summary && (
-                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-500">
-                        {
-                          item.summary
-                        }
-                      </p>
-                    )}
+                      {item.summary && (
+                        <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-500">
+                          {
+                            item.summary
+                          }
+                        </p>
+                      )}
 
-                    <Link
-                      href={`/news/${item.slug}`}
-                      className="mt-5 inline-block text-sm font-semibold text-green-700 hover:underline"
-                    >
-                      Read More →
-                    </Link>
-                  </div>
-                </article>
-              )
-            )}
-          </div>
+                      <span className="mt-auto pt-5 text-sm font-bold text-green-700">
+                        Read more →
+                      </span>
+                    </div>
+                  </Link>
+                )
+              )}
+            </div>
+          </section>
         )}
       </div>
     </main>

@@ -1,31 +1,42 @@
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
+
 import {
-  PiggyBank,
+  FileCheck2,
   HandCoins,
+  PiggyBank,
   Smartphone,
 } from "lucide-react";
 
 const services = [
   {
-    title: "Saving Schemes",
+    title: "Deposit",
     description:
-      "Saving products designed to support members in developing regular and secure saving habits.",
-    href: "/services/savings",
+      "Saving and deposit schemes designed to support members in building secure and regular saving habits.",
+    href: "/services/deposit",
     icon: PiggyBank,
   },
+
   {
-    title: "Loan Schemes",
+    title: "Loans",
     description:
-      "Member-focused credit facilities for personal, household and productive financial needs.",
+      "Member-focused loan facilities for household, personal and productive financial needs.",
     href: "/services/loans",
     icon: HandCoins,
   },
- 
+
+  {
+    title: "Loan Required Documents",
+    description:
+      "Check the documents and requirements needed before applying for different loan services.",
+    href: "/services/loan-documents",
+    icon: FileCheck2,
+  },
+
   {
     title: "Digital Services",
     description:
-      "Digital facilities designed to make cooperative services easier to access.",
+      "Digital facilities designed to make cooperative services faster and easier to access.",
     href: "/services/digital",
     icon: Smartphone,
   },
@@ -36,37 +47,40 @@ export default function ServicesPage() {
     <>
       <PageHero title="Our Services" />
 
-      <section className="bg-white py-12 md:py-16">
+      <section className="bg-[#f7f9f7] py-10 md:py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map(({ title, description, href, icon: Icon }) => (
-              <article
-                key={title}
-                className="flex flex-col rounded-lg border border-gray-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-white">
-                  <Icon size={26} />
-                </div>
-
-                <h2 className="mt-5 text-xl font-semibold">
-                  {title}
-                </h2>
-
-                <p className="mt-3 flex-1 text-sm leading-7 text-gray-600">
-                  {description}
-                </p>
-
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {services.map(
+              ({
+                title,
+                description,
+                href,
+                icon: Icon,
+              }) => (
                 <Link
+                  key={title}
                   href={href}
-                  className="mt-5 text-sm font-semibold text-green-700 hover:underline"
+                  className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
                 >
-                  Read More →
-                </Link>
-              </article>
-            ))}
-          </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-700 transition group-hover:bg-green-700 group-hover:text-white">
+                    <Icon size={22} />
+                  </div>
 
+                  <h2 className="mt-5 text-lg font-bold text-gray-900 group-hover:text-green-700">
+                    {title}
+                  </h2>
+
+                  <p className="mt-3 text-sm leading-6 text-gray-500">
+                    {description}
+                  </p>
+
+                  <span className="mt-5 inline-block text-sm font-bold text-green-700">
+                    Explore →
+                  </span>
+                </Link>
+              )
+            )}
+          </div>
         </div>
       </section>
     </>

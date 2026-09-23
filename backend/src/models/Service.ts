@@ -1,109 +1,119 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, {
+  Schema,
+} from "mongoose";
 
-const serviceSectionSchema = new Schema(
-  {
-    heading: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+const serviceSectionSchema =
+  new Schema(
+    {
+      heading: {
+        type: String,
+        default: "",
+        trim: true,
+      },
 
-    content: {
-      type: String,
-      default: "",
-    },
+      content: {
+        type: String,
+        default: "",
+      },
 
-    order: {
-      type: Number,
-      default: 1,
+      order: {
+        type: Number,
+        default: 1,
+      },
     },
-  },
-  {
-    _id: false,
-  }
-);
+    {
+      _id: false,
+    }
+  );
 
-const serviceSchema = new Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+const serviceSchema =
+  new Schema(
+    {
+      title: {
+        type: String,
+        required: true,
+        trim: true,
+      },
 
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
+      titleHtml: {
+        type: String,
+        default: "",
+      },
 
-    group: {
-      type: String,
-      required: true,
-      enum: [
-        "savings",
-        "loans",
-        "loan-documents",
-        "digital",
-    
-        "other",
-      ],
-    },
+      slug: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true,
+      },
 
-    type: {
-      type: String,
-      required: true,
-      enum: [
-        "content",
-        "image",
-        "external-link",
-      ],
-      default: "content",
-    },
+      group: {
+        type: String,
+        required: true,
+        enum: [
+          "savings",
+          "loans",
+          "loan-documents",
+          "digital",
+          "other",
+        ],
+      },
 
-    subtitle: {
-      type: String,
-      default: "",
-      trim: true,
-    },
+      type: {
+        type: String,
+        required: true,
+        enum: [
+          "content",
+          "image",
+          "external-link",
+        ],
+        default: "content",
+      },
 
-    sections: {
-      type: [serviceSectionSchema],
-      default: [],
-    },
+      subtitle: {
+        type: String,
+        default: "",
+        trim: true,
+      },
 
-    imageUrl: {
-      type: String,
-      default: "",
-    },
+      sections: {
+        type: [
+          serviceSectionSchema,
+        ],
+        default: [],
+      },
 
-    externalUrl: {
-      type: String,
-      default: "",
-      trim: true,
-    },
+      imageUrl: {
+        type: String,
+        default: "",
+      },
 
-    buttonText: {
-      type: String,
-      default: "Open",
-      trim: true,
-    },
+      externalUrl: {
+        type: String,
+        default: "",
+        trim: true,
+      },
 
-    order: {
-      type: Number,
-      default: 1,
-    },
+      buttonText: {
+        type: String,
+        default: "Open Link",
+        trim: true,
+      },
 
-    published: {
-      type: Boolean,
-      default: true,
+      order: {
+        type: Number,
+        default: 1,
+      },
+
+      published: {
+        type: Boolean,
+        default: true,
+      },
     },
-  },
-  {
-    timestamps: true,
-  }
-);
+    {
+      timestamps: true,
+    }
+  );
 
 const Service =
   mongoose.models.Service ||

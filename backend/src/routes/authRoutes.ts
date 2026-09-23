@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import {
+  changeAdminPassword,
   getCurrentAdmin,
   loginAdmin,
   logoutAdmin,
@@ -9,6 +10,10 @@ import {
 import requireAdmin from "../middleware/requireAdmin.js";
 
 const router = Router();
+
+/* =========================
+   PUBLIC AUTH
+========================= */
 
 router.post(
   "/login",
@@ -20,10 +25,20 @@ router.post(
   logoutAdmin
 );
 
+/* =========================
+   ADMIN AUTH
+========================= */
+
 router.get(
   "/me",
   requireAdmin,
   getCurrentAdmin
+);
+
+router.patch(
+  "/change-password",
+  requireAdmin,
+  changeAdminPassword
 );
 
 export default router;

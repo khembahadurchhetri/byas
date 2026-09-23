@@ -8,6 +8,11 @@ const newsSchema = new Schema(
       trim: true,
     },
 
+    titleHtml: {
+      type: String,
+      default: "",
+    },
+
     slug: {
       type: String,
       required: true,
@@ -38,11 +43,9 @@ const newsSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const News =
-  mongoose.models.News ||
-  mongoose.model("News", newsSchema);
+const News = mongoose.models.News || mongoose.model("News", newsSchema);
 
 export default News;

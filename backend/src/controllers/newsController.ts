@@ -1,34 +1,47 @@
-import type { Request, Response } from "express";
+import type {
+  Request,
+  Response,
+} from "express";
+
 import fs from "node:fs";
 import path from "node:path";
 
 import News from "../models/News.js";
-
 function createSlug(title: string) {
   return title
+    .normalize("NFC")
     .toLowerCase()
     .trim()
-    .replace(/[^\p{L}\p{N}\s-]/gu, "")
+    .replace(/[^\p{L}\p{M}\p{N}\s-]/gu, "")
     .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 async function uniqueSlug(
   title: string,
   currentId?: string
 ) {
-  const baseSlug = createSlug(title) || `news-${Date.now()}`;
+  const baseSlug =
+    createSlug(title) ||
+    `news-${Date.now()}`;
 
   let slug = baseSlug;
   let number = 1;
 
   while (true) {
-    const existing = await News.findOne({
-      slug,
-      ...(currentId
-        ? { _id: { $ne: currentId } }
-        : {}),
-    });
+    const existing =
+      await News.findOne({
+        slug,
+
+        ...(currentId
+          ? {
+              _id: {
+                $ne: currentId,
+              },
+            }
+          : {}),
+      });
 
     if (!existing) {
       return slug;
@@ -44,19 +57,26 @@ export async function getNews(
   res: Response
 ) {
   try {
-    const news = await News.find({
-      published: true,
-    }).sort({
-      createdAt: -1,
-    });
+    const news =
+      await News.find({
+        published: true,
+      }).sort({
+        createdAt: -1,
+      });
 
     return res.json(news);
   } catch (error) {
-    console.error("Get news error:", error);
+    console.error(
+      "Get news error:",
+      error
+    );
 
-    return res.status(500).json({
-      message: "Failed to load news",
-    });
+    return res
+      .status(500)
+      .json({
+        message:
+          "Failed to load news",
+      });
   }
 }
 
@@ -66,10 +86,9 @@ export async function getAllNewsForAdmin(
 ) {
   try {
     const news =
-      await News.find({})
-        .sort({
-          createdAt: -1,
-        });
+      await News.find({}).sort({
+        createdAt: -1,
+      });
 
     return res.json(news);
   } catch (error) {
@@ -92,24 +111,35 @@ export async function getNewsBySlug(
   res: Response
 ) {
   try {
-    const news = await News.findOne({
-      slug: req.params.slug,
-      published: true,
-    });
+    const news =
+      await News.findOne({
+        slug:
+          req.params.slug,
+        published: true,
+      });
 
     if (!news) {
-      return res.status(404).json({
-        message: "News not found",
-      });
+      return res
+        .status(404)
+        .json({
+          message:
+            "News not found",
+        });
     }
 
     return res.json(news);
   } catch (error) {
-    console.error("Get news by slug error:", error);
+    console.error(
+      "Get news by slug error:",
+      error
+    );
 
-    return res.status(500).json({
-      message: "Failed to load news",
-    });
+    return res
+      .status(500)
+      .json({
+        message:
+          "Failed to load news",
+      });
   }
 }
 
@@ -120,42 +150,77 @@ export async function createNews(
   try {
     const {
       title,
+      titleHtml,
       summary,
       content,
       published,
     } = req.body;
 
     if (!title?.trim()) {
-      return res.status(400).json({
-        message: "Title is required",
-      });
+      return res
+        .status(400)
+        .json({
+          message:
+            "Title is required",
+        });
     }
 
-    const slug = await uniqueSlug(title);
+    const cleanTitle =
+      title.trim();
 
-    const imageUrl = req.file
-      ? `/uploads/news/${req.file.filename}`
-      : "";
+    const slug =
+      await uniqueSlug(
+        cleanTitle
+      );
 
-    const news = await News.create({
-      title: title.trim(),
-      slug,
-      summary: summary?.trim() || "",
-      content: content || "",
-      imageUrl,
-      published: published !== "false",
-    });
+    const imageUrl =
+      req.file
+        ? `/uploads/news/${req.file.filename}`
+        : "";
 
-    return res.status(201).json({
-      message: "News created successfully",
-      news,
-    });
+    const news =
+      await News.create({
+        title: cleanTitle,
+
+        titleHtml:
+          titleHtml || "",
+
+        slug,
+
+        summary:
+          summary?.trim() ||
+          "",
+
+        content:
+          content || "",
+
+        imageUrl,
+
+        published:
+          published !==
+          "false",
+      });
+
+    return res
+      .status(201)
+      .json({
+        message:
+          "News created successfully",
+
+        news,
+      });
   } catch (error) {
-    console.error("Create news error:", error);
+    console.error(
+      "Create news error:",
+      error
+    );
 
-    return res.status(500).json({
-      message: "Failed to create news",
-    });
+    return res
+      .status(500)
+      .json({
+        message:
+          "Failed to create news",
+      });
   }
 }
 
@@ -164,68 +229,115 @@ export async function updateNews(
   res: Response
 ) {
   try {
-    const { id } = req.params;
+    const { id } =
+      req.params;
 
     const {
       title,
+      titleHtml,
       summary,
       content,
       published,
     } = req.body;
 
-    const news = await News.findById(id);
+    const news =
+      await News.findById(id);
 
     if (!news) {
-      return res.status(404).json({
-        message: "News not found",
-      });
+      return res
+        .status(404)
+        .json({
+          message:
+            "News not found",
+        });
     }
 
-    if (title !== undefined) {
-      const cleanTitle = title.trim();
+    if (
+      title !== undefined
+    ) {
+      const cleanTitle =
+        title.trim();
 
       if (!cleanTitle) {
-        return res.status(400).json({
-          message: "Title is required",
-        });
+        return res
+          .status(400)
+          .json({
+            message:
+              "Title is required",
+          });
       }
 
-      if (cleanTitle !== news.title) {
-        news.slug = await uniqueSlug(
-          cleanTitle,
-          news.id
-        );
+      if (
+        cleanTitle !==
+        news.title
+      ) {
+        news.slug =
+          await uniqueSlug(
+            cleanTitle,
+            news.id
+          );
       }
 
-      news.title = cleanTitle;
+      news.title =
+        cleanTitle;
     }
 
-    if (summary !== undefined) {
-      news.summary = summary.trim();
+    if (
+      titleHtml !==
+      undefined
+    ) {
+      news.titleHtml =
+        titleHtml || "";
     }
 
-    if (content !== undefined) {
-      news.content = content;
+    if (
+      summary !==
+      undefined
+    ) {
+      news.summary =
+        summary.trim();
     }
 
-    if (published !== undefined) {
+    if (
+      content !==
+      undefined
+    ) {
+      news.content =
+        content;
+    }
+
+    if (
+      published !==
+      undefined
+    ) {
       news.published =
         published === true ||
-        published === "true";
+        published ===
+          "true";
     }
 
     if (req.file) {
-      if (news.imageUrl) {
-        const oldImagePath = path.join(
-          process.cwd(),
-          news.imageUrl.replace(
-            /^\/uploads\//,
-            "uploads/"
-          )
-        );
+      if (
+        news.imageUrl
+      ) {
+        const oldImagePath =
+          path.join(
+            process.cwd(),
 
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
+            news.imageUrl.replace(
+              /^\/uploads\//,
+              "uploads/"
+            )
+          );
+
+        if (
+          fs.existsSync(
+            oldImagePath
+          )
+        ) {
+          fs.unlinkSync(
+            oldImagePath
+          );
         }
       }
 
@@ -236,15 +348,23 @@ export async function updateNews(
     await news.save();
 
     return res.json({
-      message: "News updated successfully",
+      message:
+        "News updated successfully",
+
       news,
     });
   } catch (error) {
-    console.error("Update news error:", error);
+    console.error(
+      "Update news error:",
+      error
+    );
 
-    return res.status(500).json({
-      message: "Failed to update news",
-    });
+    return res
+      .status(500)
+      .json({
+        message:
+          "Failed to update news",
+      });
   }
 }
 
@@ -253,38 +373,59 @@ export async function deleteNews(
   res: Response
 ) {
   try {
-    const news = await News.findById(req.params.id);
+    const news =
+      await News.findById(
+        req.params.id
+      );
 
     if (!news) {
-      return res.status(404).json({
-        message: "News not found",
-      });
+      return res
+        .status(404)
+        .json({
+          message:
+            "News not found",
+        });
     }
 
     if (news.imageUrl) {
-      const imagePath = path.join(
-        process.cwd(),
-        news.imageUrl.replace(
-          /^\/uploads\//,
-          "uploads/"
-        )
-      );
+      const imagePath =
+        path.join(
+          process.cwd(),
 
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+          news.imageUrl.replace(
+            /^\/uploads\//,
+            "uploads/"
+          )
+        );
+
+      if (
+        fs.existsSync(
+          imagePath
+        )
+      ) {
+        fs.unlinkSync(
+          imagePath
+        );
       }
     }
 
     await news.deleteOne();
 
     return res.json({
-      message: "News deleted successfully",
+      message:
+        "News deleted successfully",
     });
   } catch (error) {
-    console.error("Delete news error:", error);
+    console.error(
+      "Delete news error:",
+      error
+    );
 
-    return res.status(500).json({
-      message: "Failed to delete news",
-    });
+    return res
+      .status(500)
+      .json({
+        message:
+          "Failed to delete news",
+      });
   }
 }

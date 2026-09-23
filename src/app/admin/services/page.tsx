@@ -1,9 +1,30 @@
 "use client";
 
-import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-type ServiceType = "content" | "image" | "external-link";
+import Link from "next/link";
+
+import {
+  ExternalLink,
+  FileText,
+  Image as ImageIcon,
+  Layers3,
+  Plus,
+  Trash2,
+} from "lucide-react";
+
+import ConfirmModal from "@/components/ConfirmModal";
+import RichTextEditor from "@/components/RichTextEditor";
+
+type ServiceType =
+  | "content"
+  | "image"
+  | "external-link";
 
 type ServiceGroup =
   | "savings"
@@ -21,6 +42,7 @@ interface Section {
 interface Service {
   _id: string;
   title: string;
+  titleHtml?: string;
   slug: string;
   group: ServiceGroup;
   type: ServiceType;
@@ -33,65 +55,59 @@ interface Service {
   published: boolean;
 }
 
-const API_URL = "http://localhost:5000/api/services";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000";
 
-const BACKEND_URL = "http://localhost:5000";
+const API_URL =
+  `${BACKEND_URL}/api/services`;
 
-const groupOptions: {
-  value: ServiceGroup;
+const groups: {
+  value: Exclude<
+    ServiceGroup,
+    "other"
+  >;
   label: string;
-  description: string;
 }[] = [
   {
     value: "savings",
     label: "Deposit",
-    description: "Saving and deposit schemes",
   },
   {
     value: "loans",
     label: "Loans",
-    description: "Loan schemes and facilities",
   },
   {
     value: "loan-documents",
     label: "Loan Documents",
-    description: "Documents required for loans",
   },
   {
     value: "digital",
     label: "Digital Services",
-    description: "Digital service information and posters",
-  },
-  {
-    value: "other",
-    label: "Other",
-    description: "Other service information",
   },
 ];
 
-const typeOptions: {
-  value: ServiceType;
-  label: string;
-  description: string;
-}[] = [
+const types = [
   {
-    value: "content",
-    label: "Text / Sections",
-    description: "Title, headings and written information",
+    value: "content" as const,
+    label: "Content",
+    icon: FileText,
   },
   {
-    value: "image",
-    label: "Image / Poster",
-    description: "Upload a service poster or image",
+    value: "image" as const,
+    label: "Poster / Image",
+    icon: ImageIcon,
   },
   {
-    value: "external-link",
+    value: "external-link" as const,
     label: "External Link",
-    description: "Send visitors to another website",
+    icon: ExternalLink,
   },
 ];
 
-function emptySection(order = 1): Section {
+function emptySection(
+  order = 1
+): Section {
   return {
     heading: "",
     content: "",
@@ -99,129 +115,278 @@ function emptySection(order = 1): Section {
   };
 }
 
-async function fetchServices(): Promise<Service[]> {
-  const response = await fetch(API_URL, {
-    cache: "no-store",
-  });
+function htmlToText(
+  html: string
+) {
+  const div =
+    document.createElement(
+      "div"
+    );
 
-  if (!response.ok) {
-    throw new Error("Failed to load services.");
+  div.innerHTML = html;
+
+  return (
+    div.textContent || ""
+  ).trim();
+}
+
+function publicPath(
+  service: Pick<
+    Service,
+    "group" | "slug"
+  >
+) {
+  if (
+    service.group ===
+    "other"
+  ) {
+    return null;
   }
 
-  return response.json();
+  const category =
+    service.group ===
+    "savings"
+      ? "deposit"
+      : service.group;
+
+  return `/services/${category}/${service.slug}`;
 }
 
-function groupLabel(group: ServiceGroup) {
-  return groupOptions.find((item) => item.value === group)?.label || group;
-}
-
-function typeLabel(type: ServiceType) {
-  return typeOptions.find((item) => item.value === type)?.label || type;
-}
-
-function publicPath(service: Pick<Service, "group" | "slug">) {
-  switch (service.group) {
-    case "savings":
-      return `/services/deposit/${service.slug}`;
-
-    case "loans":
-      return `/services/loans/${service.slug}`;
-
-    case "loan-documents":
-      return `/services/loan-documents/${service.slug}`;
-
-    case "digital":
-      return `/services/digital/${service.slug}`;
-
-    default:
-      return `/services/${service.slug}`;
+function groupLabel(
+  group: ServiceGroup
+) {
+  if (group === "other") {
+    return "Legacy / Other";
   }
+
+  return (
+    groups.find(
+      (item) =>
+        item.value === group
+    )?.label || group
+  );
 }
 
 export default function AdminServicesPage() {
-  const [services, setServices] = useState<Service[]>([]);
+  const [
+    services,
+    setServices,
+  ] = useState<Service[]>([]);
 
-  const [filterGroup, setFilterGroup] = useState<ServiceGroup | "all">("all");
+  const [
+    titleHtml,
+    setTitleHtml,
+  ] = useState("");
 
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [
+    group,
+    setGroup,
+  ] = useState<
+    Exclude<
+      ServiceGroup,
+      "other"
+    >
+  >("savings");
 
-  const [title, setTitle] = useState("");
+  const [
+    type,
+    setType,
+  ] =
+    useState<ServiceType>(
+      "content"
+    );
 
-  const [slug, setSlug] = useState("");
+  const [
+    subtitle,
+    setSubtitle,
+  ] = useState("");
 
-  const [group, setGroup] = useState<ServiceGroup>("savings");
+  const [
+    sections,
+    setSections,
+  ] = useState<Section[]>([
+    emptySection(),
+  ]);
 
-  const [type, setType] = useState<ServiceType>("content");
+  const [
+    externalUrl,
+    setExternalUrl,
+  ] = useState("");
 
-  const [subtitle, setSubtitle] = useState("");
+  const [
+    buttonText,
+    setButtonText,
+  ] = useState(
+    "Open Link"
+  );
 
-  const [sections, setSections] = useState<Section[]>([emptySection()]);
+  const [
+    image,
+    setImage,
+  ] =
+    useState<File | null>(
+      null
+    );
 
-  const [externalUrl, setExternalUrl] = useState("");
+  const [
+    order,
+    setOrder,
+  ] = useState(1);
 
-  const [buttonText, setButtonText] = useState("Open Link");
+  const [
+    published,
+    setPublished,
+  ] = useState(true);
 
-  const [image, setImage] = useState<File | null>(null);
+  const [
+    editingId,
+    setEditingId,
+  ] =
+    useState<
+      string | null
+    >(null);
 
-  const [currentImageUrl, setCurrentImageUrl] = useState("");
+  const [
+    deleteId,
+    setDeleteId,
+  ] =
+    useState<
+      string | null
+    >(null);
 
-  const [order, setOrder] = useState(1);
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
 
-  const [published, setPublished] = useState(true);
+  const [
+    deleting,
+    setDeleting,
+  ] = useState(false);
 
-  const [loading, setLoading] = useState(false);
+  const [
+    pageLoading,
+    setPageLoading,
+  ] = useState(true);
 
-  const [pageLoading, setPageLoading] = useState(true);
+  const [
+    error,
+    setError,
+  ] = useState("");
 
-  const [error, setError] = useState("");
+  const [
+    success,
+    setSuccess,
+  ] = useState("");
 
-  const [success, setSuccess] = useState("");
+  const [
+    filterGroup,
+    setFilterGroup,
+  ] = useState<
+    ServiceGroup | "all"
+  >("all");
 
-  useEffect(() => {
-    let active = true;
-
-    fetchServices()
-      .then((data) => {
-        if (active) {
-          setServices(data);
-        }
-      })
-      .catch((error: unknown) => {
-        if (!active) return;
-
-        setError(
-          error instanceof Error ? error.message : "Could not load services.",
+  async function loadServices() {
+    try {
+      const response =
+        await fetch(
+          API_URL,
+          {
+            cache:
+              "no-store",
+            credentials:
+              "include",
+          }
         );
-      })
-      .finally(() => {
-        if (active) {
-          setPageLoading(false);
-        }
-      });
 
-    return () => {
-      active = false;
-    };
-  }, []);
+      if (!response.ok) {
+        throw new Error(
+          "Could not load services."
+        );
+      }
 
-  const visibleServices = useMemo(() => {
-    if (filterGroup === "all") {
-      return services;
+      setServices(
+        await response.json()
+      );
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Could not load services."
+      );
+    } finally {
+      setPageLoading(false);
     }
-
-    return services.filter((service) => service.group === filterGroup);
-  }, [services, filterGroup]);
-
-  async function reloadServices() {
-    const data = await fetchServices();
-
-    setServices(data);
   }
 
-  function clearFileInput() {
-    const input = document.getElementById(
-      "service-image",
-    ) as HTMLInputElement | null;
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  /* AUTO-HIDE SUCCESS */
+
+  useEffect(() => {
+    if (!success) {
+      return;
+    }
+
+    const timer =
+      window.setTimeout(
+        () =>
+          setSuccess(""),
+        3000
+      );
+
+    return () =>
+      window.clearTimeout(
+        timer
+      );
+  }, [success]);
+
+  /* AUTO-HIDE ERROR */
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    const timer =
+      window.setTimeout(
+        () =>
+          setError(""),
+        5000
+      );
+
+    return () =>
+      window.clearTimeout(
+        timer
+      );
+  }, [error]);
+
+  const visibleServices =
+    useMemo(() => {
+      if (
+        filterGroup ===
+        "all"
+      ) {
+        return services;
+      }
+
+      return services.filter(
+        (service) =>
+          service.group ===
+          filterGroup
+      );
+    }, [
+      services,
+      filterGroup,
+    ]);
+
+  function clearFile() {
+    const input =
+      document.getElementById(
+        "service-image"
+      ) as HTMLInputElement | null;
 
     if (input) {
       input.value = "";
@@ -229,92 +394,155 @@ export default function AdminServicesPage() {
   }
 
   function resetForm() {
-    setEditingId(null);
-
-    setTitle("");
-    setSlug("");
+    setTitleHtml("");
     setGroup("savings");
     setType("content");
-
     setSubtitle("");
 
-    setSections([emptySection()]);
+    setSections([
+      emptySection(),
+    ]);
 
     setExternalUrl("");
-    setButtonText("Open Link");
+    setButtonText(
+      "Open Link"
+    );
 
     setImage(null);
-    setCurrentImageUrl("");
-
     setOrder(1);
     setPublished(true);
+    setEditingId(null);
 
-    clearFileInput();
+    clearFile();
   }
 
   function addSection() {
-    setSections((current) => [...current, emptySection(current.length + 1)]);
+    setSections(
+      (current) => [
+        ...current,
+
+        emptySection(
+          current.length + 1
+        ),
+      ]
+    );
   }
 
-  function removeSection(index: number) {
-    setSections((current) =>
-      current
-        .filter((_, i) => i !== index)
-        .map((section, i) => ({
-          ...section,
-          order: i + 1,
-        })),
+  function removeSection(
+    index: number
+  ) {
+    setSections(
+      (current) =>
+        current
+          .filter(
+            (_, i) =>
+              i !== index
+          )
+          .map(
+            (
+              section,
+              i
+            ) => ({
+              ...section,
+              order:
+                i + 1,
+            })
+          )
     );
   }
 
   function updateSection(
     index: number,
-    field: "heading" | "content",
-    value: string,
+    field:
+      | "heading"
+      | "content",
+    value: string
   ) {
-    setSections((current) =>
-      current.map((section, i) =>
-        i === index
-          ? {
-              ...section,
-              [field]: value,
-            }
-          : section,
-      ),
+    setSections(
+      (current) =>
+        current.map(
+          (
+            section,
+            i
+          ) =>
+            i === index
+              ? {
+                  ...section,
+                  [field]:
+                    value,
+                }
+              : section
+        )
     );
   }
 
-  function editService(service: Service) {
+  function editService(
+    service: Service
+  ) {
     setError("");
     setSuccess("");
 
-    setEditingId(service._id);
+    setEditingId(
+      service._id
+    );
 
-    setTitle(service.title);
+    setTitleHtml(
+      service.titleHtml ||
+        `<p>${service.title}</p>`
+    );
 
-    setSlug(service.slug);
+    /*
+      Old "other" items are legacy.
+      When editing one, move it to Deposit
+      unless you choose another category.
+    */
 
-    setGroup(service.group);
+    setGroup(
+      service.group ===
+        "other"
+        ? "savings"
+        : service.group
+    );
 
-    setType(service.type);
+    setType(
+      service.type
+    );
 
-    setSubtitle(service.subtitle || "");
+    setSubtitle(
+      service.subtitle ||
+        ""
+    );
 
-    setSections(service.sections?.length ? service.sections : [emptySection()]);
+    setSections(
+      service.sections
+        ?.length
+        ? service.sections
+        : [
+            emptySection(),
+          ]
+    );
 
-    setExternalUrl(service.externalUrl || "");
+    setExternalUrl(
+      service.externalUrl ||
+        ""
+    );
 
-    setButtonText(service.buttonText || "Open Link");
+    setButtonText(
+      service.buttonText ||
+        "Open Link"
+    );
 
-    setCurrentImageUrl(service.imageUrl || "");
+    setOrder(
+      service.order || 1
+    );
+
+    setPublished(
+      service.published
+    );
 
     setImage(null);
 
-    setOrder(service.order);
-
-    setPublished(service.published);
-
-    clearFileInput();
+    clearFile();
 
     window.scrollTo({
       top: 0,
@@ -322,680 +550,989 @@ export default function AdminServicesPage() {
     });
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     setError("");
     setSuccess("");
 
-    if (!title.trim()) {
-      setError("Please enter a title.");
+    const plainTitle =
+      htmlToText(
+        titleHtml
+      );
+
+    if (!plainTitle) {
+      setError(
+        "Please enter a service title."
+      );
+
       return;
     }
 
-    if (type === "external-link" && !externalUrl.trim()) {
-      setError("Please enter the external URL.");
+    if (
+      type ===
+        "external-link" &&
+      !externalUrl.trim()
+    ) {
+      setError(
+        "Please enter the external URL."
+      );
+
       return;
     }
 
-    const formData = new FormData();
+    const formData =
+      new FormData();
 
-    formData.append("title", title.trim());
+    formData.append(
+      "title",
+      plainTitle
+    );
 
-    /*
-     * Empty slug is allowed when
-     * creating. Backend generates it
-     * from the title.
-     */
-    formData.append("slug", slug.trim());
+    formData.append(
+      "titleHtml",
+      titleHtml
+    );
 
-    formData.append("group", group);
+    formData.append(
+      "group",
+      group
+    );
 
-    formData.append("type", type);
+    formData.append(
+      "type",
+      type
+    );
 
-    formData.append("subtitle", subtitle.trim());
+    formData.append(
+      "subtitle",
+      subtitle.trim()
+    );
 
-    formData.append("order", String(order));
+    formData.append(
+      "sections",
+      JSON.stringify(
+        sections
+      )
+    );
 
-    formData.append("published", String(published));
+    formData.append(
+      "externalUrl",
+      externalUrl.trim()
+    );
 
-    formData.append("sections", JSON.stringify(sections));
+    formData.append(
+      "buttonText",
+      buttonText.trim()
+    );
 
-    formData.append("externalUrl", externalUrl.trim());
+    formData.append(
+      "order",
+      String(order)
+    );
 
-    formData.append("buttonText", buttonText.trim());
+    formData.append(
+      "published",
+      String(published)
+    );
 
     if (image) {
-      formData.append("image", image);
+      formData.append(
+        "image",
+        image
+      );
     }
 
     setLoading(true);
 
     try {
-      const wasEditing = Boolean(editingId);
+      const wasEditing =
+        Boolean(
+          editingId
+        );
 
-      const response = await fetch(
-        editingId ? `${API_URL}/${editingId}` : API_URL,
-        {
-          method: editingId ? "PATCH" : "POST",
-          credentials: "include",
-          body: formData,
-        },
-      );
+      const response =
+        await fetch(
+          editingId
+            ? `${API_URL}/${editingId}`
+            : API_URL,
+          {
+            method:
+              editingId
+                ? "PATCH"
+                : "POST",
 
-      const data = await response.json().catch(() => null);
+            credentials:
+              "include",
+
+            body:
+              formData,
+          }
+        );
+
+      const data =
+        await response
+          .json()
+          .catch(
+            () => null
+          );
 
       if (!response.ok) {
-        throw new Error(data?.message || "Failed to save service.");
+        throw new Error(
+          data?.message ||
+            "Could not save service."
+        );
       }
 
       resetForm();
 
-      await reloadServices();
+      await loadServices();
 
       setSuccess(
         wasEditing
           ? "Service updated successfully."
-          : "Service added successfully.",
+          : "Service added successfully."
       );
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Something went wrong.",
+        error instanceof Error
+          ? error.message
+          : "Could not save service."
       );
     } finally {
       setLoading(false);
     }
   }
 
-  async function deleteService(id: string) {
-    if (!window.confirm("Delete this service?")) {
+  async function deleteService() {
+    if (!deleteId) {
       return;
     }
 
+    setDeleting(true);
     setError("");
-    setSuccess("");
 
     try {
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response =
+        await fetch(
+          `${API_URL}/${deleteId}`,
+          {
+            method:
+              "DELETE",
 
-      const data = await response.json().catch(() => null);
+            credentials:
+              "include",
+          }
+        );
 
       if (!response.ok) {
-        throw new Error(data?.message || "Delete failed.");
+        throw new Error(
+          "Could not delete service."
+        );
       }
 
-      if (editingId === id) {
+      if (
+        editingId ===
+        deleteId
+      ) {
         resetForm();
       }
 
-      await reloadServices();
+      setDeleteId(null);
 
-      setSuccess("Service deleted successfully.");
+      await loadServices();
+
+      setSuccess(
+        "Service deleted successfully."
+      );
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Delete failed.");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Could not delete service."
+      );
+    } finally {
+      setDeleting(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-6 sm:px-6 sm:py-8">
+    <main className="min-h-screen bg-[#f6f8f7] px-4 py-6 sm:px-6">
       <div className="mx-auto max-w-7xl">
-        {/* PAGE TITLE */}
+
+        {/* HEADER */}
 
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.15em] text-green-700">
-            Mahila SACCOS
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-green-700">
+            Mahila SACCOS CMS
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold text-gray-900">
-            Manage Services
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-gray-950">
+            Services
           </h1>
 
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-500">
-            Add and update Deposit schemes, Loans, Loan Documents and Digital
-            Services.
+          <p className="mt-2 text-sm text-gray-500">
+            Create and manage Deposit,
+            Loan, Documents and Digital
+            services.
           </p>
         </div>
 
-        {/* EDITOR */}
+        {/* FORM */}
 
         <form
-          onSubmit={handleSubmit}
-          className="mt-8 rounded-2xl border bg-white p-5 shadow-sm sm:p-7"
+          onSubmit={
+            handleSubmit
+          }
+          className="mt-6 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm"
         >
-          <div className="flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-center sm:justify-between">
+
+          {/* FORM HEADER */}
+
+          <div className="flex flex-col gap-3 border-b bg-gray-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
-                {editingId ? "Edit Service" : "Add Service"}
+              <h2 className="font-bold text-gray-900">
+                {editingId
+                  ? "Edit Service"
+                  : "New Service"}
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
-                Choose where the service belongs, then enter its information.
+              <p className="mt-1 text-xs text-gray-400">
+                Fill only the information
+                required for this service.
               </p>
             </div>
 
             {editingId && (
               <button
                 type="button"
-                onClick={resetForm}
-                className="w-fit rounded-lg border px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                onClick={
+                  resetForm
+                }
+                className="w-fit rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
               >
                 Cancel Edit
               </button>
             )}
           </div>
 
-          {/* GROUP */}
+          {/* FORM GRID */}
 
-          <div className="mt-6">
-            <h3 className="font-semibold text-gray-900">
-              1. Where should this appear?
-            </h3>
+          <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1fr_280px]">
 
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-              {groupOptions.map((item) => {
-                const selected = group === item.value;
+            {/* LEFT CONTENT */}
 
-                return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => setGroup(item.value)}
-                    className={`rounded-xl border p-4 text-left transition ${
-                      selected
-                        ? "border-green-600 bg-green-50 ring-1 ring-green-600"
-                        : "bg-white hover:border-green-300"
-                    }`}
-                  >
-                    <div
-                      className={`font-semibold ${
-                        selected ? "text-green-700" : "text-gray-900"
-                      }`}
-                    >
-                      {item.label}
-                    </div>
+            <div className="space-y-5">
 
-                    <p className="mt-1 text-xs leading-5 text-gray-500">
-                      {item.description}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+              {/* CATEGORY */}
 
-          {/* BASIC INFO */}
-
-          <div className="mt-8">
-            <h3 className="font-semibold text-gray-900">
-              2. Basic information
-            </h3>
-
-            <div className="mt-3 grid gap-5 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Title / शीर्षक
+                <label className="mb-2 block text-sm font-bold text-gray-700">
+                  Category
                 </label>
 
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Example: नियमित बचत"
-                  className="w-full rounded-xl border px-4 py-3 outline-none focus:border-green-600"
+                <div className="flex flex-wrap gap-2">
+                  {groups.map(
+                    (item) => (
+                      <button
+                        key={
+                          item.value
+                        }
+                        type="button"
+                        onClick={() =>
+                          setGroup(
+                            item.value
+                          )
+                        }
+                        className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                          group ===
+                          item.value
+                            ? "bg-green-700 text-white"
+                            : "border border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50"
+                        }`}
+                      >
+                        {
+                          item.label
+                        }
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
+              {/* TITLE */}
+
+              <div>
+                <label className="mb-2 block text-sm font-bold text-gray-700">
+                  Service Title
+                </label>
+
+                <RichTextEditor
+                  variant="title"
+                  value={
+                    titleHtml
+                  }
+                  onChange={
+                    setTitleHtml
+                  }
                 />
               </div>
 
+              {/* SUBTITLE */}
+
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  URL name
-                </label>
-
-                <input
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  placeholder="Leave empty to create automatically"
-                  className="w-full rounded-xl border px-4 py-3 outline-none focus:border-green-600"
-                />
-
-                <p className="mt-1 text-xs text-gray-400">
-                  Example: regular-saving. Usually you can leave this empty.
-                </p>
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Subtitle / Tagline
+                <label className="mb-2 block text-sm font-bold text-gray-700">
+                  Subtitle / Short Description
                 </label>
 
                 <textarea
-                  value={subtitle}
-                  onChange={(e) => setSubtitle(e.target.value)}
                   rows={2}
-                  className="w-full rounded-xl border px-4 py-3 outline-none focus:border-green-600"
+                  value={
+                    subtitle
+                  }
+                  onChange={(
+                    event
+                  ) =>
+                    setSubtitle(
+                      event
+                        .target
+                        .value
+                    )
+                  }
+                  placeholder="A short explanation shown below the title."
+                  className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-100"
                 />
               </div>
-            </div>
-          </div>
 
-          {/* TYPE */}
+              {/* CONTENT TYPE */}
 
-          <div className="mt-8">
-            <h3 className="font-semibold text-gray-900">
-              3. What kind of content is this?
-            </h3>
+              <div>
+                <label className="mb-2 block text-sm font-bold text-gray-700">
+                  Content Type
+                </label>
 
-            <div className="mt-3 grid gap-3 md:grid-cols-3">
-              {typeOptions.map((item) => {
-                const selected = type === item.value;
+                <div className="flex flex-wrap gap-2">
+                  {types.map(
+                    (item) => {
+                      const Icon =
+                        item.icon;
 
-                return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => setType(item.value)}
-                    className={`rounded-xl border p-4 text-left transition ${
-                      selected
-                        ? "border-green-600 bg-green-50 ring-1 ring-green-600"
-                        : "hover:border-green-300"
-                    }`}
-                  >
-                    <div
-                      className={`font-semibold ${
-                        selected ? "text-green-700" : "text-gray-900"
-                      }`}
-                    >
-                      {item.label}
-                    </div>
+                      return (
+                        <button
+                          key={
+                            item.value
+                          }
+                          type="button"
+                          onClick={() =>
+                            setType(
+                              item.value
+                            )
+                          }
+                          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
+                            type ===
+                            item.value
+                              ? "border-green-700 bg-green-700 text-white"
+                              : "border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50"
+                          }`}
+                        >
+                          <Icon
+                            size={
+                              16
+                            }
+                          />
 
-                    <p className="mt-1 text-xs leading-5 text-gray-500">
-                      {item.description}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* CONTENT */}
-
-          {type === "content" && (
-            <div className="mt-8">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold text-gray-900">
-                    4. Content sections
-                  </h3>
-
-                  <p className="mt-1 text-sm text-gray-500">
-                    Example: उद्देश्यहरू, विशेषताहरू, सेवा तथा शर्तहरू.
-                  </p>
+                          {
+                            item.label
+                          }
+                        </button>
+                      );
+                    }
+                  )}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={addSection}
-                  className="rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-800"
-                >
-                  + Add Section
-                </button>
               </div>
 
-              <div className="mt-4 space-y-4">
-                {sections.map((section, index) => (
-                  <div
-                    key={index}
-                    className="rounded-xl border bg-gray-50 p-4 sm:p-5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-700">
-                        Section {index + 1}
-                      </span>
+              {/* CONTENT SECTIONS */}
 
-                      {sections.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeSection(index)}
-                          className="text-sm font-medium text-red-600 hover:underline"
-                        >
-                          Remove
-                        </button>
-                      )}
+              {type ===
+                "content" && (
+                <div>
+                  <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700">
+                        Information Sections
+                      </h3>
+
+                      <p className="mt-1 text-xs text-gray-400">
+                        Create headings,
+                        paragraphs, bullets
+                        and numbered lists.
+                      </p>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={
+                        addSection
+                      }
+                      className="flex w-fit items-center gap-1.5 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700 transition hover:bg-green-100"
+                    >
+                      <Plus
+                        size={14}
+                      />
+
+                      Add Section
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {sections.map(
+                      (
+                        section,
+                        index
+                      ) => (
+                        <div
+                          key={
+                            index
+                          }
+                          className="rounded-2xl border border-gray-200 bg-gray-50 p-3 sm:p-4"
+                        >
+
+                          {/* SECTION HEADER */}
+
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-xs font-bold text-green-700">
+                              {index +
+                                1}
+                            </div>
+
+                            <input
+                              value={
+                                section.heading
+                              }
+                              onChange={(
+                                event
+                              ) =>
+                                updateSection(
+                                  index,
+                                  "heading",
+                                  event
+                                    .target
+                                    .value
+                                )
+                              }
+                              placeholder="Section heading, e.g. उद्देश्यहरू"
+                              className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-green-500"
+                            />
+
+                            {sections.length >
+                              1 && (
+                              <button
+                                type="button"
+                                title="Remove section"
+                                onClick={() =>
+                                  removeSection(
+                                    index
+                                  )
+                                }
+                                className="rounded-lg p-2 text-red-500 transition hover:bg-red-50"
+                              >
+                                <Trash2
+                                  size={
+                                    16
+                                  }
+                                />
+                              </button>
+                            )}
+                          </div>
+
+                          {/* COMPACT RICH EDITOR */}
+
+                          <div className="mt-3">
+                            <RichTextEditor
+                              variant="compact"
+                              value={
+                                section.content
+                              }
+                              onChange={(
+                                value
+                              ) =>
+                                updateSection(
+                                  index,
+                                  "content",
+                                  value
+                                )
+                              }
+                            />
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* IMAGE TYPE */}
+
+              {type ===
+                "image" && (
+                <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                  <label className="text-sm font-bold text-gray-700">
+                    Service Image / Poster
+                  </label>
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    Upload a JPG,
+                    PNG or WebP poster.
+                  </p>
+
+                  <input
+                    id="service-image"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    onChange={(
+                      event
+                    ) =>
+                      setImage(
+                        event
+                          .target
+                          .files?.[0] ||
+                          null
+                      )
+                    }
+                    className="mt-3 block w-full text-sm text-gray-500 file:mr-3 file:rounded-lg file:border-0 file:bg-green-700 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white"
+                  />
+                </div>
+              )}
+
+              {/* EXTERNAL TYPE */}
+
+              {type ===
+                "external-link" && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-bold text-gray-700">
+                      External URL
+                    </label>
 
                     <input
-                      value={section.heading}
-                      onChange={(e) =>
-                        updateSection(index, "heading", e.target.value)
+                      value={
+                        externalUrl
                       }
-                      placeholder="Section heading"
-                      className="mt-4 w-full rounded-lg border bg-white px-4 py-3"
-                    />
-
-                    <textarea
-                      value={section.content}
-                      onChange={(e) =>
-                        updateSection(index, "content", e.target.value)
+                      onChange={(
+                        event
+                      ) =>
+                        setExternalUrl(
+                          event
+                            .target
+                            .value
+                        )
                       }
-                      rows={6}
-                      placeholder={`Enter the section content.
-
-You can write:
-1. First point
-2. Second point
-3. Third point`}
-                      className="mt-3 w-full rounded-lg border bg-white px-4 py-3"
+                      placeholder="https://..."
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-green-500"
                     />
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* IMAGE */}
-
-          {type === "image" && (
-            <div className="mt-8 rounded-xl border bg-gray-50 p-5">
-              <h3 className="font-semibold text-gray-900">4. Image / Poster</h3>
-
-              {currentImageUrl && (
-                <div className="mt-4">
-                  <p className="mb-2 text-xs text-gray-500">Current image</p>
-
-                  <img
-                    src={`${BACKEND_URL}${currentImageUrl}`}
-                    alt=""
-                    className="max-h-52 rounded-lg border bg-white object-contain"
-                  />
-                </div>
-              )}
-
-              <input
-                id="service-image"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => setImage(e.target.files?.[0] || null)}
-                className="mt-4 w-full rounded-lg border bg-white px-4 py-3"
-              />
-
-              <p className="mt-2 text-xs text-gray-500">
-                JPG, PNG or WebP. Maximum 50 MB.
-              </p>
-
-              {editingId && currentImageUrl && (
-                <p className="mt-1 text-xs text-gray-500">
-                  Leave this empty to keep the current image.
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* LINK */}
-
-          {type === "external-link" && (
-            <div className="mt-8 rounded-xl border bg-gray-50 p-5">
-              <h3 className="font-semibold text-gray-900">4. External Link</h3>
-
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-medium">
-                    Destination URL
-                  </label>
-
-                  <input
-                    value={externalUrl}
-                    onChange={(e) => setExternalUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full rounded-lg border bg-white px-4 py-3"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Button Text
-                  </label>
-
-                  <input
-                    value={buttonText}
-                    onChange={(e) => setButtonText(e.target.value)}
-                    placeholder="Open Link"
-                    className="w-full rounded-lg border bg-white px-4 py-3"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SETTINGS */}
-
-          <div className="mt-8">
-            <h3 className="font-semibold text-gray-900">5. Display settings</h3>
-
-            <div className="mt-3 grid gap-5 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Display Order
-                </label>
-
-                <input
-                  type="number"
-                  min="1"
-                  value={order}
-                  onChange={(e) => setOrder(Number(e.target.value))}
-                  className="w-full rounded-xl border px-4 py-3"
-                />
-
-                <p className="mt-1 text-xs text-gray-400">
-                  1 appears first, 2 second, and so on.
-                </p>
-              </div>
-
-              <div className="flex items-center">
-                <label className="flex cursor-pointer items-center gap-3 rounded-xl border bg-gray-50 px-5 py-4">
-                  <input
-                    type="checkbox"
-                    checked={published}
-                    onChange={(e) => setPublished(e.target.checked)}
-                    className="h-4 w-4"
-                  />
 
                   <div>
-                    <div className="font-medium">Published</div>
+                    <label className="mb-2 block text-sm font-bold text-gray-700">
+                      Button Text
+                    </label>
 
-                    <div className="text-xs text-gray-500">
-                      Visible on the public website
-                    </div>
+                    <input
+                      value={
+                        buttonText
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setButtonText(
+                          event
+                            .target
+                            .value
+                        )
+                      }
+                      placeholder="Open Link"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-green-500"
+                    />
                   </div>
-                </label>
-              </div>
+                </div>
+              )}
             </div>
+
+            {/* SETTINGS */}
+
+            <aside>
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                <h3 className="text-sm font-bold text-gray-900">
+                  Settings
+                </h3>
+
+                {/* PUBLISHED */}
+
+                <div className="mt-4 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700">
+                      Published
+                    </p>
+
+                    <p className="mt-0.5 text-xs text-gray-400">
+                      Visible on website
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPublished(
+                        !published
+                      )
+                    }
+                    className={`relative h-7 w-12 shrink-0 rounded-full transition ${
+                      published
+                        ? "bg-green-700"
+                        : "bg-gray-300"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${
+                        published
+                          ? "left-6"
+                          : "left-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* ORDER */}
+
+                <div className="mt-5 border-t border-gray-200 pt-4">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Display Order
+                  </label>
+
+                  <input
+                    type="number"
+                    min={1}
+                    value={order}
+                    onChange={(
+                      event
+                    ) =>
+                      setOrder(
+                        Number(
+                          event
+                            .target
+                            .value
+                        ) || 1
+                      )
+                    }
+                    className="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-green-500"
+                  />
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    Smaller numbers
+                    appear first.
+                  </p>
+                </div>
+              </div>
+            </aside>
           </div>
 
-          {/* FEEDBACK */}
+          {/* SAVE BAR */}
 
-          {error && (
-            <div className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
+          <div className="flex flex-col gap-3 border-t bg-gray-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6">
+            {editingId && (
+              <button
+                type="button"
+                onClick={
+                  resetForm
+                }
+                className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+            )}
 
-          {success && (
-            <div className="mt-6 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700">
-              {success}
-            </div>
-          )}
-
-          {/* SAVE */}
-
-          <div className="mt-6 flex flex-wrap gap-3 border-t pt-6">
             <button
               type="submit"
-              disabled={loading}
-              className="rounded-xl bg-green-700 px-6 py-3 font-semibold text-white hover:bg-green-800 disabled:opacity-50"
+              disabled={
+                loading
+              }
+              className="rounded-xl bg-green-700 px-7 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading
                 ? "Saving..."
                 : editingId
                   ? "Update Service"
-                  : "Add Service"}
+                  : "Create Service"}
             </button>
-
-            {editingId && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="rounded-xl border px-6 py-3 font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-            )}
           </div>
+
+          {/* MESSAGES */}
+
+          {(success ||
+            error) && (
+            <div className="border-t px-5 py-4 sm:px-6">
+              {success && (
+                <div className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                  {success}
+                </div>
+              )}
+
+              {error && (
+                <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                  {error}
+                </div>
+              )}
+            </div>
+          )}
         </form>
 
         {/* EXISTING SERVICES */}
 
-        <section className="mt-10">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <section className="mt-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-gray-900">
                 Existing Services
               </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Edit, view or delete existing service information.
+                {services.length}{" "}
+                {services.length === 1
+                  ? "service"
+                  : "services"}{" "}
+                in total.
               </p>
             </div>
 
-            {/* FILTER */}
+            {/* FILTERS */}
 
             <div className="flex flex-wrap gap-2">
-              <FilterButton
-                active={filterGroup === "all"}
-                onClick={() => setFilterGroup("all")}
+              <Filter
+                active={
+                  filterGroup ===
+                  "all"
+                }
+                onClick={() =>
+                  setFilterGroup(
+                    "all"
+                  )
+                }
               >
                 All
-              </FilterButton>
+              </Filter>
 
-              {groupOptions.map((item) => (
-                <FilterButton
-                  key={item.value}
-                  active={filterGroup === item.value}
-                  onClick={() => setFilterGroup(item.value)}
-                >
-                  {item.label}
-                </FilterButton>
-              ))}
+              {groups.map(
+                (item) => (
+                  <Filter
+                    key={
+                      item.value
+                    }
+                    active={
+                      filterGroup ===
+                      item.value
+                    }
+                    onClick={() =>
+                      setFilterGroup(
+                        item.value
+                      )
+                    }
+                  >
+                    {
+                      item.label
+                    }
+                  </Filter>
+                )
+              )}
             </div>
           </div>
 
+          {/* LIST */}
+
           {pageLoading ? (
-            <div className="mt-5 rounded-xl border bg-white p-10 text-center text-gray-500">
-              Loading...
-            </div>
-          ) : visibleServices.length > 0 ? (
-            <div className="mt-5 grid gap-4">
-              {visibleServices.map((service) => (
-                <article
-                  key={service._id}
-                  className="rounded-2xl border bg-white p-5 shadow-sm"
-                >
-                  <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="break-words text-lg font-bold text-gray-900">
-                          {service.title}
-                        </h3>
-
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                            service.published
-                              ? "bg-green-50 text-green-700"
-                              : "bg-gray-100 text-gray-500"
-                          }`}
-                        >
-                          {service.published ? "Published" : "Hidden"}
-                        </span>
-                      </div>
-
-                      <p className="mt-2 text-sm font-medium text-green-700">
-                        {groupLabel(service.group)}
-                      </p>
-
-                      <p className="mt-1 break-all text-xs text-gray-400">
-                        {publicPath(service)}
-                      </p>
-
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                        <span className="rounded-full bg-blue-50 px-3 py-1 text-blue-700">
-                          {typeLabel(service.type)}
-                        </span>
-
-                        <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-600">
-                          Order {service.order}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {service.published && (
-                        <Link
-                          href={publicPath(service)}
-                          target="_blank"
-                          className="rounded-lg border border-green-700 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-50"
-                        >
-                          View
-                        </Link>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={() => editService(service)}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => deleteService(service._id)}
-                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
+            <div className="mt-4 rounded-2xl border bg-white p-10 text-center text-sm text-gray-400">
+              Loading services...
             </div>
           ) : (
-            <div className="mt-5 rounded-xl border bg-white p-10 text-center text-gray-500">
-              No services found in this category.
+            <div className="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+              {visibleServices.map(
+                (
+                  service,
+                  index
+                ) => {
+                  const viewPath =
+                    publicPath(
+                      service
+                    );
+
+                  return (
+                    <article
+                      key={
+                        service._id
+                      }
+                      className={`flex flex-col gap-4 p-4 transition hover:bg-gray-50 sm:flex-row sm:items-center ${
+                        index !==
+                        visibleServices.length -
+                          1
+                          ? "border-b border-gray-100"
+                          : ""
+                      }`}
+                    >
+                      {/* ICON */}
+
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-700">
+                        <Layers3
+                          size={18}
+                        />
+                      </div>
+
+                      {/* INFO */}
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="truncate font-bold text-gray-900">
+                            {
+                              service.title
+                            }
+                          </h3>
+
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              service.published
+                                ? "bg-green-50 text-green-700"
+                                : "bg-gray-100 text-gray-500"
+                            }`}
+                          >
+                            {service.published
+                              ? "Published"
+                              : "Hidden"}
+                          </span>
+                        </div>
+
+                        <p className="mt-1 text-xs text-gray-400">
+                          {groupLabel(
+                            service.group
+                          )}{" "}
+                          ·{" "}
+                          {
+                            service.type
+                          }
+                        </p>
+
+                        
+
+                        {service.subtitle && (
+                          <p className="mt-1 line-clamp-1 text-sm text-gray-500">
+                            {
+                              service.subtitle
+                            }
+                          </p>
+                        )}
+                      </div>
+
+                      {/* ACTIONS */}
+
+                      <div className="flex shrink-0 flex-wrap gap-2">
+
+                        {service.published &&
+                          viewPath && (
+                            <Link
+                              href={
+                                viewPath
+                              }
+                              target="_blank"
+                              className="rounded-xl border border-green-200 bg-white px-3 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-50"
+                            >
+                              View
+                            </Link>
+                          )}
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editService(
+                              service
+                            )
+                          }
+                          className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDeleteId(
+                              service._id
+                            )
+                          }
+                          className="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </article>
+                  );
+                }
+              )}
+
+              {visibleServices.length ===
+                0 && (
+                <div className="p-10 text-center text-sm text-gray-400">
+                  No services in this
+                  category.
+                </div>
+              )}
             </div>
           )}
         </section>
+
+        {/* DELETE MODAL */}
+
+        <ConfirmModal
+          open={
+            Boolean(
+              deleteId
+            )
+          }
+          title="Delete this service?"
+          description="This service will be permanently removed from the website."
+          loading={
+            deleting
+          }
+          onCancel={() =>
+            setDeleteId(
+              null
+            )
+          }
+          onConfirm={
+            deleteService
+          }
+        />
       </div>
     </main>
   );
 }
 
-function FilterButton({
+function Filter({
   active,
   onClick,
   children,
 }: {
   active: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  children:
+    React.ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+      className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
         active
           ? "bg-green-700 text-white"
-          : "border bg-white text-gray-600 hover:bg-gray-50"
+          : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
       }`}
     >
       {children}

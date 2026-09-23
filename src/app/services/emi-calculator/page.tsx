@@ -406,8 +406,10 @@ export default function EmiCalculatorPage() {
                 </thead>
 
                 <tbody className="divide-y">
-                  {forexRates.map((item) => (
-                    <tr key={item.currency.ISO3} className="hover:bg-gray-50">
+                  {forexRates.map((item, index) => (
+                    <tr
+                      key={`${item.currency.ISO3}-${item.currency.name}-${index}`}
+                    >
                       <td className="px-4 py-2.5">
                         <div className="font-medium text-gray-800">
                           {item.currency.name}

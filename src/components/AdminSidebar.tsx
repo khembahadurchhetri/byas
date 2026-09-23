@@ -14,6 +14,7 @@ import {
   GalleryHorizontal,
   Home,
   Images,
+  KeyRound,
   LogOut,
   Mail,
   Menu,
@@ -28,8 +29,13 @@ import {
   useState,
 } from "react";
 
+const API_URL =
+  process.env
+    .NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000";
+
 const AUTH_URL =
-  "http://localhost:5000/api/auth";
+  `${API_URL}/api/auth`;
 
 const adminLinks = [
   {
@@ -81,6 +87,11 @@ const adminLinks = [
     name: "Services",
     href: "/admin/services",
     icon: ShoppingBag,
+  },
+  {
+    name: "Account",
+    href: "/admin/account",
+    icon: KeyRound,
   },
 ];
 

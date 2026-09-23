@@ -5,9 +5,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-import {
-  notFound,
-} from "next/navigation";
+import { notFound } from "next/navigation";
 
 import ServiceSidebar from "@/components/ServiceSidebar";
 
@@ -26,7 +24,6 @@ interface Service {
   title: string;
   titleHtml?: string;
   slug: string;
-
   group: string;
 
   type:
@@ -71,14 +68,6 @@ const categories = {
   },
 } as const;
 
-/*
-  Makes Unicode comparison safer.
-
-  Example:
-  नियमित-मासिक-बचत
-  and its decoded browser version
-  will compare consistently.
-*/
 function normalizeSlug(
   value: string
 ) {
@@ -116,18 +105,6 @@ export default async function ServiceDetailPage({
   if (!config) {
     notFound();
   }
-
-  /*
-    IMPORTANT:
-    We no longer request:
-
-    /api/services/:slug
-
-    That was the fragile Unicode lookup.
-
-    We load the category once and find
-    the service locally.
-  */
 
   const response =
     await fetch(
@@ -174,15 +151,14 @@ export default async function ServiceDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f9f7]">
-
+    <main className="min-h-screen bg-[#f7f9fc]">
       {/* PAGE HEADER */}
 
       <section className="border-b border-gray-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
           <Link
             href={`/services/${category}`}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-green-700 transition hover:text-green-800"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#1F3C88] transition hover:text-[#162E6A]"
           >
             <ArrowLeft
               size={15}
@@ -192,25 +168,7 @@ export default async function ServiceDetailPage({
           </Link>
 
           <div
-            className="
-              mt-4
-              max-w-4xl
-              text-3xl
-              font-bold
-              leading-tight
-              text-gray-950
-              sm:text-4xl
-
-              [&_h1]:m-0
-              [&_h1]:text-4xl
-              [&_h1]:font-bold
-
-              [&_h2]:m-0
-              [&_h2]:text-3xl
-              [&_h2]:font-bold
-
-              [&_p]:m-0
-            "
+            className="mt-4 max-w-4xl text-3xl font-bold leading-tight text-gray-950 sm:text-4xl [&_h1]:m-0 [&_h1]:text-4xl [&_h1]:font-bold [&_h2]:m-0 [&_h2]:text-3xl [&_h2]:font-bold [&_p]:m-0"
             dangerouslySetInnerHTML={{
               __html:
                 service.titleHtml ||
@@ -220,7 +178,9 @@ export default async function ServiceDetailPage({
 
           {service.subtitle && (
             <p className="mt-4 max-w-3xl text-base leading-7 text-gray-500">
-              {service.subtitle}
+              {
+                service.subtitle
+              }
             </p>
           )}
         </div>
@@ -229,12 +189,15 @@ export default async function ServiceDetailPage({
       {/* BODY */}
 
       <div className="mx-auto grid max-w-7xl gap-7 px-4 py-8 sm:px-6 lg:grid-cols-[250px_minmax(0,1fr)]">
-
         {/* LEFT NAV */}
 
         <ServiceSidebar
-          title={config.title}
-          category={category}
+          title={
+            config.title
+          }
+          category={
+            category
+          }
           services={
             publishedServices
           }
@@ -246,18 +209,24 @@ export default async function ServiceDetailPage({
         {/* CONTENT */}
 
         <article className="min-w-0">
-
-          {/* TEXT / CONTENT */}
+          {/* CONTENT TYPE */}
 
           {service.type ===
             "content" && (
             <>
-              {service.sections?.length >
-              0 ? (
+              {service.sections &&
+              service.sections
+                .length >
+                0 ? (
                 <div className="space-y-4">
-                  {[...service.sections]
+                  {[
+                    ...service.sections,
+                  ]
                     .sort(
-                      (a, b) =>
+                      (
+                        a,
+                        b
+                      ) =>
                         a.order -
                         b.order
                     )
@@ -279,52 +248,7 @@ export default async function ServiceDetailPage({
                           )}
 
                           <div
-                            className="
-                              text-[15px]
-                              leading-8
-                              text-gray-700
-
-                              [&_h1]:mb-3
-                              [&_h1]:mt-5
-                              [&_h1]:text-3xl
-                              [&_h1]:font-bold
-                              [&_h1]:text-gray-950
-
-                              [&_h2]:mb-3
-                              [&_h2]:mt-5
-                              [&_h2]:text-2xl
-                              [&_h2]:font-bold
-                              [&_h2]:text-gray-900
-
-                              [&_h3]:mb-2
-                              [&_h3]:mt-4
-                              [&_h3]:text-xl
-                              [&_h3]:font-bold
-
-                              [&_p]:my-2
-
-                              [&_strong]:font-bold
-
-                              [&_ul]:my-3
-                              [&_ul]:list-disc
-                              [&_ul]:space-y-1
-                              [&_ul]:pl-6
-
-                              [&_ol]:my-3
-                              [&_ol]:list-decimal
-                              [&_ol]:space-y-1
-                              [&_ol]:pl-6
-
-                              [&_li]:pl-1
-
-                              [&_blockquote]:my-4
-                              [&_blockquote]:rounded-r-xl
-                              [&_blockquote]:border-l-4
-                              [&_blockquote]:border-green-600
-                              [&_blockquote]:bg-green-50
-                              [&_blockquote]:px-4
-                              [&_blockquote]:py-3
-                            "
+                            className="text-[15px] leading-8 text-gray-700 [&_h1]:mb-3 [&_h1]:mt-5 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-gray-950 [&_h2]:mb-3 [&_h2]:mt-5 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-gray-900 [&_h3]:mb-2 [&_h3]:mt-4 [&_h3]:text-xl [&_h3]:font-bold [&_p]:my-2 [&_strong]:font-bold [&_ul]:my-3 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-6 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:pl-6 [&_li]:pl-1 [&_blockquote]:my-4 [&_blockquote]:rounded-r-xl [&_blockquote]:border-l-4 [&_blockquote]:border-[#1F3C88] [&_blockquote]:bg-[#EEF4FF] [&_blockquote]:px-4 [&_blockquote]:py-3"
                             dangerouslySetInnerHTML={{
                               __html:
                                 section.content,
@@ -336,14 +260,16 @@ export default async function ServiceDetailPage({
                 </div>
               ) : (
                 <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-400">
-                  Service information
-                  will be added soon.
+                  Service
+                  information
+                  will be
+                  added soon.
                 </div>
               )}
             </>
           )}
 
-          {/* IMAGE / POSTER */}
+          {/* IMAGE TYPE */}
 
           {service.type ===
             "image" && (
@@ -358,25 +284,27 @@ export default async function ServiceDetailPage({
                 />
               ) : (
                 <div className="p-16 text-center text-sm text-gray-400">
-                  No image has been
-                  uploaded for this
+                  No image has
+                  been uploaded
+                  for this
                   service yet.
                 </div>
               )}
             </div>
           )}
 
-          {/* EXTERNAL LINK */}
+          {/* EXTERNAL LINK TYPE */}
 
           {service.type ===
             "external-link" && (
             <div className="rounded-3xl border border-gray-200 bg-white p-7 shadow-sm sm:p-9">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-green-700">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1F3C88]">
                 External Service
               </p>
 
               <h2 className="mt-2 text-2xl font-bold text-gray-900">
-                Continue to service
+                Continue to
+                service
               </h2>
 
               {service.subtitle && (
@@ -387,21 +315,31 @@ export default async function ServiceDetailPage({
                 </p>
               )}
 
-              <a
-                href={
-                  service.externalUrl
-                }
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-green-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-green-800"
-              >
-                {service.buttonText ||
-                  "Open Link"}
+              {service.externalUrl ? (
+                <a
+                  href={
+                    service.externalUrl
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#1F3C88] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#162E6A]"
+                >
+                  {service.buttonText ||
+                    "Open Link"}
 
-                <ExternalLink
-                  size={16}
-                />
-              </a>
+                  <ExternalLink
+                    size={
+                      16
+                    }
+                  />
+                </a>
+              ) : (
+                <p className="mt-5 text-sm text-gray-400">
+                  External
+                  link is not
+                  available yet.
+                </p>
+              )}
             </div>
           )}
         </article>

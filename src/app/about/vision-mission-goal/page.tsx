@@ -23,7 +23,7 @@ export default function VisionMissionGoalPage() {
             Vision, Mission and Objectives
           </h1>
 
-          <div className="mx-auto mt-5 h-1 w-16 rounded-full bg-green-700" />
+          <div className="mx-auto mt-5 h-1 w-16 rounded-full bg-[#1F3C88]" />
         </div>
       </section>
 
@@ -32,11 +32,11 @@ export default function VisionMissionGoalPage() {
           {/* Vision + Mission */}
           <div className="grid gap-6 lg:grid-cols-2">
             <article className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-700">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-[#1F3C88]">
                 <Eye size={24} />
               </div>
 
-              <p className="text-xs font-semibold uppercase tracking-widest text-green-700">
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#1F3C88]">
                 Vision
               </p>
 
@@ -80,13 +80,13 @@ export default function VisionMissionGoalPage() {
           {/* Corporate Values */}
           <article className="mt-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-700">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-50 text-[#1F3C88]">
                 <Gem size={23} />
               </div>
 
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-green-700">
-                  Corporate Values
+                <p className="text-xs font-semibold uppercase tracking-widest text-[#1F3C88]">
+                  Our Objectives
                 </p>
 
                 <h2 className="mt-1 text-2xl font-bold text-gray-800">
@@ -97,57 +97,40 @@ export default function VisionMissionGoalPage() {
             <div className="mt-6 rounded-xl bg-yellow-50 px-5 py-4 text-sm leading-7 text-gray-600">
               <ul className="list-disc space-y-2 pl-5">
                 <li>
-                  <strong>जवाफदेहीता:</strong> संस्थाको परिकल्पना, ध्येय तथा
-                  रणनैतिक लक्ष्यहरूको प्राप्तिका लागि आवश्यक निर्णय लिन र जवाफ
-                  दिन सम्बन्धित सदस्य, सञ्चालक, कर्मचारीहरूलाई जिम्मेवार बनाइनेछ
-                  ।
+                  To instill the spirit of frugality among the members of the
+                  organization and develop the habit of regular saving.
                 </li>
 
                 <li>
-                  <strong>विश्वसनीयता:</strong> संस्थाका काम-कारबाहि,
-                  कार्यसम्पादन प्रक्रिया, सेवा तथा सुविधा हरू प्रदान गर्दा
-                  अविच्छिन्न तथा अविचलित रूपमा एकरूपता कायम गरिनेछ ।
+                  To identify the primary needs and income-generating capacities
+                  of the members, promote investment through members in
+                  productive and income-generating sectors, and increase the
+                  utilization of dispersed national capital.
                 </li>
 
                 <li>
-                  <strong>पारदर्शिता:</strong> संस्थागत पारदर्शिता कायम गर्न
-                  सम्बन्धित सम्पूर्ण सरोकारवाला लाई संस्था सञ्चालन सम्बन्धमा
-                  जानकारी गराइनेछ ।
+                  To acquire, transfer, mortgage, or pledge movable and
+                  immovable properties as needed for daily operations in
+                  accordance with the Cooperative Act, regulations, standards,
+                  and the provisions of this statute, with the utmost focus on
+                  the collective and developmental interests of the members.
                 </li>
 
                 <li>
-                  <strong>पेशागत व्यवसायिकता:</strong> साकोस सञ्चालनका मापदण्ड,
-                  विवेकि अभ्यास, नीति, विधिको पूर्ण कार्यान्वयन तथा प्रयोग
-                  मार्फत सदस्य, समाज र स्थानिय अर्थतन्त्रको उत्पादकत्वमा योगदान
-                  पु¥याउन ।
+                  To enhance both the individual and collective capacities of
+                  the members and contribute to building a self-reliant and
+                  independent society.
                 </li>
 
                 <li>
-                  <strong>वित्तीय दिगोपना:</strong> वित्तीय सम्पत्ति तथा
-                  दायित्वको सन्तुलित व्यवस्थापन मार्फत सामाजिक-वातावरणीय पक्ष,
-                  स्थानीय अर्थतन्त्रको उत्पादकत्वमा वृद्धि र वित्तीय सुशासनलाई
-                  प्राथमिकतामा राखी वित्तीय व्यवस्थापन गरिनेछ ।
+                  To support the economic and social upliftment of the
+                  marginalized and low-income individuals or groups in the
+                  society.
                 </li>
 
                 <li>
-                  <strong>समता:</strong> सहकारी संस्थामा सदस्य, सञ्चालक,
-                  कर्मचारी तथा सम्पूर्ण सरोकारवाला बिच आन्तरिक तथा बाह्य स्रोत
-                  तथा साधनको सापेक्षिक वितरणको रूपमा बुझिनेछ । साथै विभिन्न
-                  क्षेत्र, जात, धर्म, वर्ण, लिङ्ग तथा वर्गको प्रतिनिधित्व गर्ने
-                  सदस्य, सञ्चालक तथा कर्मचारीहरूलाई सम हुनाको भाव वा अवस्थाको
-                  महसुस रहने गरी, निष्पक्षिरूपमा संस्थागत अवसरहरूमा समावेश
-                  गराइनेछ ।
-                </li>
-
-                <li>
-                  <strong>ऐक्यबद्धता:</strong> महिला साकोस र यस अन्तर्गतका
-                  सदस्यहरूको समृद्धि, सहकारी अभियानको विकास तथा प्रवर्द्धन,
-                  स्थानीय अर्थतन्त्रको प्रवर्द्धन तथा विकास, स्थानीय तथा
-                  राष्ट्रिय समस्याहरूको समाधानका लागि संस्थामा आबद्ध सम्पूर्ण
-                  सदस्यहरूबाट संस्थागत रूपमा ऐक्यबद्धता जनाइनेछ । बहुमत रूपमा
-                  गरेको निर्णयलाई सामूहिक निर्णयका रूपमा स्वीकार गरिनेछ । निर्णय
-                  प्रक्रियामा साझा विन्दु अवलम्बन गरिनेछ । संस्थामा कुनै गट वा
-                  उपगटको संलग्नतालाई स्वीकार गरिनेछैन ।
+                  To promote social, cultural, educational, health, and
+                  environmental protection activities within the community.
                 </li>
               </ul>
             </div>
@@ -177,7 +160,7 @@ export default function VisionMissionGoalPage() {
                   key={pillar}
                   className="flex items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4"
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-700 text-sm font-bold text-white">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1F3C88] text-sm font-bold text-white">
                     {index + 1}
                   </span>
 

@@ -181,8 +181,8 @@ export default function AdminMessagesPage() {
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.15em] text-green-700">
-              Mahila SACCOS
+            <p className="text-sm font-semibold uppercase tracking-[0.15em] text-[#1F3C88]">
+              Vyas Credits and Savings
             </p>
 
             <h1 className="mt-1 text-2xl font-bold text-gray-800 sm:text-3xl">
@@ -253,7 +253,7 @@ export default function AdminMessagesPage() {
 
                     <a
                       href={`mailto:${item.email}`}
-                      className="mt-1 block break-all text-sm text-green-700 hover:underline"
+                      className="mt-1 block break-all text-sm text-[#1F3C88] hover:underline"
                     >
                       {item.email}
                     </a>

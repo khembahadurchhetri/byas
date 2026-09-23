@@ -1,87 +1,55 @@
 "use client";
 
-import {
-  FormEvent,
-  useState,
-} from "react";
+import { FormEvent, useState } from "react";
 
-import {
-  Mail,
-  MessageSquare,
-  Send,
-  Tag,
-  User,
-} from "lucide-react";
+import { Mail, MessageSquare, Send, Tag, User } from "lucide-react";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function ContactPage() {
-  const [sent, setSent] =
-    useState(false);
+  const [sent, setSent] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
-  const [sending, setSending] =
-    useState(false);
+  const [sending, setSending] = useState(false);
 
-  async function handleSubmit(
-    e: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     setSent(false);
     setError("");
     setSending(true);
 
-    const form =
-      e.currentTarget;
+    const form = e.currentTarget;
 
-    const formData =
-      new FormData(form);
+    const formData = new FormData(form);
 
     const data = {
-      name:
-        formData.get("name"),
-      email:
-        formData.get("email"),
-      subject:
-        formData.get("subject"),
-      message:
-        formData.get("message"),
+      name: formData.get("name"),
+      email: formData.get("email"),
+      subject: formData.get("subject"),
+      message: formData.get("message"),
     };
 
     try {
-      const response =
-        await fetch(
-          `${API_URL}/api/messages`,
-          {
-            method: "POST",
+      const response = await fetch(`${API_URL}/api/messages`, {
+        method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-            body:
-              JSON.stringify(data),
-          }
-        );
+        body: JSON.stringify(data),
+      });
 
       if (!response.ok) {
-        throw new Error(
-          "Failed to send message"
-        );
+        throw new Error("Failed to send message");
       }
 
       form.reset();
       setSent(true);
     } catch {
-      setError(
-        "Unable to send your message. Please try again."
-      );
+      setError("Unable to send your message. Please try again.");
     } finally {
       setSending(false);
     }
@@ -90,11 +58,10 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen bg-gray-50 py-10 sm:py-14">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
-
         {/* HEADER */}
 
         <div className="mb-8 text-center">
-          <span className="inline-flex rounded-full bg-green-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-green-700">
+          <span className="inline-flex rounded-full bg-green-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#1F3C88]">
             Contact Us
           </span>
 
@@ -103,27 +70,16 @@ export default function ContactPage() {
           </h1>
 
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-gray-500">
-            Have a question,
-            suggestion or message?
-            Send it directly to
-            Mahila SACCOS.
+            Have a question, suggestion or message? Send it directly to Mahila
+            Credits and Savings .
           </p>
         </div>
 
         {/* FORM */}
 
         <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
-          <form
-            onSubmit={
-              handleSubmit
-            }
-            className="space-y-5"
-          >
-
-            <Field
-              label="Name"
-              icon={User}
-            >
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Field label="Name" icon={User}>
               <input
                 type="text"
                 name="name"
@@ -133,10 +89,7 @@ export default function ContactPage() {
               />
             </Field>
 
-            <Field
-              label="E-mail"
-              icon={Mail}
-            >
+            <Field label="E-mail" icon={Mail}>
               <input
                 type="email"
                 name="email"
@@ -146,10 +99,7 @@ export default function ContactPage() {
               />
             </Field>
 
-            <Field
-              label="Subject"
-              icon={Tag}
-            >
+            <Field label="Subject" icon={Tag}>
               <input
                 type="text"
                 name="subject"
@@ -185,9 +135,8 @@ export default function ContactPage() {
             {/* FEEDBACK */}
 
             {sent && (
-              <div className="rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
-                ✓ Message submitted
-                successfully.
+              <div className="rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-sm font-medium text-[#1F3C88]">
+                ✓ Message submitted successfully.
               </div>
             )}
 
@@ -201,20 +150,12 @@ export default function ContactPage() {
 
             <button
               type="submit"
-              disabled={
-                sending
-              }
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-700 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={sending}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1F3C88] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#162E6A] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {sending
-                ? "Sending..."
-                : "Send Message"}
+              {sending ? "Sending..." : "Send Message"}
 
-              {!sending && (
-                <Send
-                  size={17}
-                />
-              )}
+              {!sending && <Send size={17} />}
             </button>
           </form>
         </div>
@@ -239,10 +180,7 @@ function Field({
       </label>
 
       <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50 px-4 transition focus-within:border-green-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-green-100">
-        <Icon
-          size={18}
-          className="mr-3 shrink-0 text-green-600"
-        />
+        <Icon size={18} className="mr-3 shrink-0 text-green-600" />
 
         {children}
       </div>

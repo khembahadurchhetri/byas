@@ -1,299 +1,216 @@
-"use client";
-
 import Link from "next/link";
+
 import {
-  Copy,
+  ArrowUpRight,
+  ExternalLink,
   Globe,
-  Mail,
-  MapPin,
-  Phone,
+  Smartphone,
 } from "lucide-react";
-import { useState } from "react";
+
+const facebookUrl =
+  "https://www.facebook.com/vyas.saving";
+
+const appUrl =
+  "https://play.google.com/store/apps/details?id=com.devanasoft.vyas";
+
+const quickLinks = [
+  {
+    name: "About Us",
+    href: "/about",
+  },
+  {
+    name: "Deposit",
+    href: "/services/deposit",
+  },
+  {
+    name: "Loans",
+    href: "/services/loans",
+  },
+  {
+    name: "Gallery",
+    href: "/gallery",
+  },
+  {
+    name: "News",
+    href: "/news",
+  },
+  {
+    name: "Contact",
+    href: "/contact",
+  },
+];
+
+const usefulLinks = [
+  {
+    name: "NEFSCUN",
+    href: "https://www.nefscun.org.np/",
+  },
+  {
+    name: "National Cooperative Federation",
+    href: "https://ncfnepal.com.np/",
+  },
+  {
+    name: "Department of Cooperative",
+    href: "https://www.deoc.gov.np/",
+  },
+  {
+    name: "Ministry of Finance",
+    href: "https://mof.gov.np/",
+  },
+  {
+    name: "National Cooperative Bank",
+    href: "https://ncbl.coop/html/",
+  },
+];
 
 export default function Footer() {
-  const [copied, setCopied] =
-    useState("");
-
-  async function copyText(
-    value: string,
-    label: string
-  ) {
-    await navigator.clipboard.writeText(
-      value
-    );
-
-    setCopied(label);
-
-    setTimeout(() => {
-      setCopied("");
-    }, 1500);
-  }
-
   return (
-    <>
-      <footer className="bg-green-700 text-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:grid-cols-4">
+    <footer className="bg-[#162E6A] text-white">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
 
-          {/* FACEBOOK */}
+          {/* BRAND */}
 
-          <div className="w-full overflow-hidden">
-            <h3 className="mb-5 text-xl font-bold">
-              Facebook
-            </h3>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-200">
+              Byas SACCOS
+            </p>
 
-            <div className="max-w-[340px] overflow-hidden rounded-xl bg-white">
-              <iframe
-                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fmahilasaccositahari&tabs=timeline&width=340&height=260&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true"
-                width="340"
-                height="260"
-                className="block w-full max-w-full border-0 bg-white"
-                title="Mahila SACCOS Facebook Page"
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            </div>
+            <h2 className="mt-2 text-xl font-bold leading-7">
+              Byas Saving & Credit
+              Co-Operative Ltd.
+            </h2>
+
+            <p className="mt-3 max-w-sm text-sm leading-6 text-blue-100/75">
+              Supporting members through savings,
+              credit services and cooperative values.
+            </p>
           </div>
 
           {/* QUICK LINKS */}
 
           <div>
-            <h3 className="mb-5 text-xl font-bold">
+            <h3 className="text-base font-bold">
               Quick Links
             </h3>
 
-            <div className="flex flex-col gap-3 text-sm text-green-50">
-              <Link
-                href="/about"
-                className="w-fit transition hover:text-yellow-300"
-              >
-                About Us
-              </Link>
+            <div className="mt-3 flex flex-col gap-2">
+              {quickLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="group flex w-fit items-center gap-1.5 text-sm text-blue-100/80 transition hover:text-white"
+                >
+                  {item.name}
 
-              <Link
-                href="/services/deposit"
-                className="w-fit transition hover:text-yellow-300"
-              >
-                Deposit
-              </Link>
-
-              <Link
-                href="/services/loans"
-                className="w-fit transition hover:text-yellow-300"
-              >
-                Loans
-              </Link>
-
-              <Link
-                href="/gallery"
-                className="w-fit transition hover:text-yellow-300"
-              >
-                Gallery
-              </Link>
-
-              <Link
-                href="/news"
-                className="w-fit transition hover:text-yellow-300"
-              >
-                Latest News
-              </Link>
-
-              <Link
-                href="/contact"
-                className="w-fit transition hover:text-yellow-300"
-              >
-                Contact
-              </Link>
+                  <ArrowUpRight
+                    size={12}
+                    className="opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100"
+                  />
+                </Link>
+              ))}
             </div>
           </div>
 
           {/* USEFUL LINKS */}
 
           <div>
-            <h3 className="mb-5 text-xl font-bold">
+            <h3 className="text-base font-bold">
               Useful Links
             </h3>
 
-            <div className="flex flex-col gap-3 text-sm leading-6 text-green-50">
-              <a
-                href="https://www.nefscun.org.np/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-fit transition hover:text-yellow-300 hover:underline"
-              >
-                NEFSCUN
-              </a>
+            <div className="mt-3 flex flex-col gap-2">
+              {usefulLinks.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex w-fit items-start gap-1.5 text-sm leading-5 text-blue-100/80 transition hover:text-white"
+                >
+                  <span>
+                    {item.name}
+                  </span>
 
-              <a
-                href="https://ncfnepal.com.np/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-fit transition hover:text-yellow-300 hover:underline"
-              >
-                National Cooperative Federation of Nepal
-              </a>
-
-              <a
-                href="https://www.deoc.gov.np/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-fit transition hover:text-yellow-300 hover:underline"
-              >
-                Department of Cooperative
-              </a>
-
-              <a
-                href="https://mof.gov.np/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-fit transition hover:text-yellow-300 hover:underline"
-              >
-                Ministry of Finance
-              </a>
-
-              <a
-                href="https://www.moald.gov.np/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-fit transition hover:text-yellow-300 hover:underline"
-              >
-                Ministry of Agriculture, Forest and Environment
-              </a>
-
-              <a
-                href="https://ncbl.coop/html/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-fit transition hover:text-yellow-300 hover:underline"
-              >
-                National Cooperative Bank Limited
-              </a>
+                  <ExternalLink
+                    size={11}
+                    className="mt-1 shrink-0 opacity-50"
+                  />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* HEAD OFFICE */}
+          {/* SOCIAL / APP */}
 
           <div>
-            <h3 className="mb-5 text-xl font-bold">
-              Head Office
+            <h3 className="text-base font-bold">
+              Connect
             </h3>
 
-            <div className="space-y-4 text-sm text-green-50">
+            <div className="mt-3 space-y-3">
+              <a
+                href={facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-4 py-3 transition hover:bg-white/15"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#1F3C88]">
+                  <Globe size={17} />
+                </div>
 
-              {/* ADDRESS */}
+                <div>
+                  <p className="text-xs text-blue-200">
+                    Follow us on
+                  </p>
 
-              <div className="flex items-start gap-3">
-                <MapPin
-                  size={18}
-                  className="mt-0.5 shrink-0 text-yellow-300"
-                />
+                  <p className="text-sm font-semibold">
+                    Facebook
+                  </p>
+                </div>
+              </a>
 
-                <p>
-                  इटहरी उपमहानगरपालिका वडा नं. ४, आइतबारे, सुनसरी
-                </p>
-              </div>
+              <a
+                href={appUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-4 py-3 transition hover:bg-white/15"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#1F3C88]">
+                  <Smartphone size={17} />
+                </div>
 
-              {/* PHONE */}
+                <div>
+                  <p className="text-xs text-blue-200">
+                    Mobile Banking
+                  </p>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Phone
-                  size={17}
-                  className="shrink-0 text-yellow-300"
-                />
-
-                <a
-                  href="tel:+97725582217"
-                  className="hover:text-yellow-300 hover:underline"
-                >
-                  +977-025-582217
-                </a>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    copyText(
-                      "+977-025-582217",
-                      "phone"
-                    )
-                  }
-                  title="Copy phone number"
-                  className="rounded p-1.5 transition hover:bg-white/10"
-                >
-                  <Copy
-                    size={14}
-                  />
-                </button>
-
-                {copied === "phone" && (
-                  <span className="text-xs text-yellow-300">
-                    Copied
-                  </span>
-                )}
-              </div>
-
-              {/* EMAIL */}
-
-              <div className="flex flex-wrap items-center gap-2">
-                <Mail
-                  size={17}
-                  className="shrink-0 text-yellow-300"
-                />
-
-                <a
-                  href="mailto:info@mahilasaccos.coop.np"
-                  className="break-all hover:text-yellow-300 hover:underline"
-                >
-                  info@mahilasaccos.coop.np
-                </a>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    copyText(
-                      "info@mahilasaccos.coop.np",
-                      "email"
-                    )
-                  }
-                  title="Copy email"
-                  className="rounded p-1.5 transition hover:bg-white/10"
-                >
-                  <Copy
-                    size={14}
-                  />
-                </button>
-
-                {copied === "email" && (
-                  <span className="text-xs text-yellow-300">
-                    Copied
-                  </span>
-                )}
-              </div>
+                  <p className="text-sm font-semibold">
+                    Get App
+                  </p>
+                </div>
+              </a>
             </div>
-
-            {/* FACEBOOK BUTTON */}
-
-            <a
-              href="https://www.facebook.com/mahilasaccositahari"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 flex w-fit items-center gap-2 rounded-lg bg-white/10 px-4 py-2.5 text-sm transition hover:bg-white/20"
-            >
-              <Globe
-                size={18}
-              />
-              Facebook
-            </a>
           </div>
         </div>
-      </footer>
+      </div>
 
       {/* COPYRIGHT */}
 
-      <div className="bg-white px-4 py-4 text-center text-xs text-gray-500 sm:text-sm">
-        © Mahila SACCOS. All Rights Reserved. Design & Developed by{" "}
-        <span className="font-semibold text-gray-700">
-          Mahila SACCOS
-        </span>
+      <div className="border-t border-white/10 bg-[#10275E]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 text-center text-[11px] text-blue-100/70 sm:px-6 md:flex-row md:items-center md:justify-between md:text-left">
+          <p>
+            © 2026 Byas Saving & Credit Co-Operative Ltd.
+          </p>
+
+          <p>
+            Design & Developed by{" "}
+            <span className="font-semibold text-white">
+              Lumino Technology Pvt. Ltd.
+            </span>
+          </p>
+        </div>
       </div>
-    </>
+    </footer>
   );
 }

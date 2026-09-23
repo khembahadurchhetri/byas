@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  FormEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 interface SuccessStory {
   _id: string;
@@ -16,51 +11,38 @@ interface SuccessStory {
   published: boolean;
 }
 
-const API_URL =
-  "http://localhost:5000/api/success-stories";
+const API_URL = "http://localhost:5000/api/success-stories";
 
-const BACKEND_URL =
-  "http://localhost:5000";
+const BACKEND_URL = "http://localhost:5000";
 
 export default function AdminSuccessStoriesPage() {
-  const [stories, setStories] = useState<
-    SuccessStory[]
-  >([]);
+  const [stories, setStories] = useState<SuccessStory[]>([]);
 
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [story, setStory] = useState("");
-  const [image, setImage] =
-    useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
 
-  const [published, setPublished] =
-    useState(true);
+  const [published, setPublished] = useState(true);
 
-  const [editingId, setEditingId] =
-    useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const fileInputRef =
-    useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function loadStories() {
     try {
       const response = await fetch(API_URL);
 
       if (!response.ok) {
-        throw new Error(
-          "Failed to load success stories"
-        );
+        throw new Error("Failed to load success stories");
       }
 
       setStories(await response.json());
     } catch (error) {
       console.error(error);
-      alert(
-        "Could not load success stories."
-      );
+      alert("Could not load success stories.");
     }
   }
 
@@ -71,10 +53,16 @@ export default function AdminSuccessStoriesPage() {
         if (!response.ok) throw new Error("Could not load success stories.");
         return response.json() as Promise<SuccessStory[]>;
       })
-      .then((data) => { if (!controller.signal.aborted) setStories(data); })
+      .then((data) => {
+        if (!controller.signal.aborted) setStories(data);
+      })
       .catch((error: unknown) => {
         if (!controller.signal.aborted) {
-          alert(error instanceof Error ? error.message : "Could not load success stories.");
+          alert(
+            error instanceof Error
+              ? error.message
+              : "Could not load success stories.",
+          );
         }
       });
     return () => controller.abort();
@@ -93,9 +81,7 @@ export default function AdminSuccessStoriesPage() {
     }
   }
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!name.trim()) {
@@ -108,10 +94,7 @@ export default function AdminSuccessStoriesPage() {
     formData.append("name", name);
     formData.append("title", title);
     formData.append("story", story);
-    formData.append(
-      "published",
-      String(published)
-    );
+    formData.append("published", String(published));
 
     if (image) {
       formData.append("image", image);
@@ -121,39 +104,29 @@ export default function AdminSuccessStoriesPage() {
 
     try {
       const response = await fetch(
-        editingId
-          ? `${API_URL}/${editingId}`
-          : API_URL,
+        editingId ? `${API_URL}/${editingId}` : API_URL,
         {
-          method: editingId
-            ? "PATCH"
-            : "POST",
+          method: editingId ? "PATCH" : "POST",
           credentials: "include",
           body: formData,
-        }
+        },
       );
 
       if (!response.ok) {
-        throw new Error(
-          "Request failed"
-        );
+        throw new Error("Request failed");
       }
 
       resetForm();
       await loadStories();
     } catch (error) {
       console.error(error);
-      alert(
-        "Could not save success story."
-      );
+      alert("Could not save success story.");
     } finally {
       setLoading(false);
     }
   }
 
-  function startEditing(
-    item: SuccessStory
-  ) {
+  function startEditing(item: SuccessStory) {
     setEditingId(item._id);
     setName(item.name);
     setTitle(item.title);
@@ -171,30 +144,19 @@ export default function AdminSuccessStoriesPage() {
     });
   }
 
-  async function deleteStory(
-    id: string
-  ) {
-    if (
-      !window.confirm(
-        "Delete this success story?"
-      )
-    ) {
+  async function deleteStory(id: string) {
+    if (!window.confirm("Delete this success story?")) {
       return;
     }
 
     try {
-      const response = await fetch(
-        `${API_URL}/${id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       if (!response.ok) {
-        throw new Error(
-          "Delete failed"
-        );
+        throw new Error("Delete failed");
       }
 
       if (editingId === id) {
@@ -204,16 +166,13 @@ export default function AdminSuccessStoriesPage() {
       await loadStories();
     } catch (error) {
       console.error(error);
-      alert(
-        "Could not delete success story."
-      );
+      alert("Could not delete success story.");
     }
   }
 
   return (
     <main className="min-h-screen bg-gray-100 py-10">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-
         <h1 className="text-3xl font-bold text-gray-800">
           Manage Success Stories
         </h1>
@@ -227,49 +186,35 @@ export default function AdminSuccessStoriesPage() {
           className="my-8 rounded-lg bg-white p-5 shadow-sm sm:p-7"
         >
           <div className="grid gap-5 md:grid-cols-2">
-
             <div>
-              <label className="mb-2 block font-medium">
-                Member Name
-              </label>
+              <label className="mb-2 block font-medium">Member Name</label>
 
               <input
                 value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
-                }
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Member name"
                 className="w-full rounded-md border border-gray-300 px-4 py-3"
               />
             </div>
 
             <div>
-              <label className="mb-2 block font-medium">
-                Title
-              </label>
+              <label className="mb-2 block font-medium">Title</label>
 
               <input
                 value={title}
-                onChange={(e) =>
-                  setTitle(e.target.value)
-                }
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder="Optional title"
                 className="w-full rounded-md border border-gray-300 px-4 py-3"
               />
             </div>
-
           </div>
 
           <div className="mt-5">
-            <label className="mb-2 block font-medium">
-              Success Story
-            </label>
+            <label className="mb-2 block font-medium">Success Story</label>
 
             <textarea
               value={story}
-              onChange={(e) =>
-                setStory(e.target.value)
-              }
+              onChange={(e) => setStory(e.target.value)}
               rows={8}
               placeholder="Member success story"
               className="w-full rounded-md border border-gray-300 px-4 py-3"
@@ -277,27 +222,19 @@ export default function AdminSuccessStoriesPage() {
           </div>
 
           <div className="mt-5">
-            <label className="mb-2 block font-medium">
-              Member Image
-            </label>
+            <label className="mb-2 block font-medium">Member Image</label>
 
             <input
               ref={fileInputRef}
               type="file"
               accept=".jpg,.jpeg,.png,.webp"
-              onChange={(e) =>
-                setImage(
-                  e.target.files?.[0] ||
-                    null
-                )
-              }
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
               className="w-full rounded-md border border-gray-300 px-4 py-3"
             />
 
             {editingId && (
               <p className="mt-2 text-xs text-gray-500">
-                Leave empty to keep the
-                existing image.
+                Leave empty to keep the existing image.
               </p>
             )}
           </div>
@@ -306,27 +243,17 @@ export default function AdminSuccessStoriesPage() {
             <input
               type="checkbox"
               checked={published}
-              onChange={(e) =>
-                setPublished(
-                  e.target.checked
-                )
-              }
+              onChange={(e) => setPublished(e.target.checked)}
             />
-
             Published
           </label>
 
           <div className="mt-6 flex flex-wrap gap-3">
-
             <button
               disabled={loading}
-              className="rounded-md bg-green-700 px-6 py-3 text-white disabled:opacity-50"
+              className="rounded-md bg-[#1F3C88] px-6 py-3 text-white disabled:opacity-50"
             >
-              {loading
-                ? "Saving..."
-                : editingId
-                  ? "Update Story"
-                  : "Add Story"}
+              {loading ? "Saving..." : editingId ? "Update Story" : "Add Story"}
             </button>
 
             {editingId && (
@@ -338,12 +265,10 @@ export default function AdminSuccessStoriesPage() {
                 Cancel
               </button>
             )}
-
           </div>
         </form>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
           {stories.map((item) => (
             <article
               key={item._id}
@@ -358,13 +283,12 @@ export default function AdminSuccessStoriesPage() {
               )}
 
               <div className="p-5">
-
                 <h2 className="text-lg font-semibold text-gray-800">
                   {item.name}
                 </h2>
 
                 {item.title && (
-                  <p className="mt-1 text-sm font-medium text-green-700">
+                  <p className="mt-1 text-sm font-medium text-[#1F3C88]">
                     {item.title}
                   </p>
                 )}
@@ -374,18 +298,13 @@ export default function AdminSuccessStoriesPage() {
                 </p>
 
                 <p className="mt-3 text-xs">
-                  {item.published
-                    ? "Published"
-                    : "Hidden"}
+                  {item.published ? "Published" : "Hidden"}
                 </p>
 
                 <div className="mt-5 flex gap-2">
-
                   <button
                     type="button"
-                    onClick={() =>
-                      startEditing(item)
-                    }
+                    onClick={() => startEditing(item)}
                     className="rounded bg-blue-600 px-4 py-2 text-sm text-white"
                   >
                     Edit
@@ -393,19 +312,15 @@ export default function AdminSuccessStoriesPage() {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      deleteStory(item._id)
-                    }
+                    onClick={() => deleteStory(item._id)}
                     className="rounded bg-red-600 px-4 py-2 text-sm text-white"
                   >
                     Delete
                   </button>
-
                 </div>
               </div>
             </article>
           ))}
-
         </div>
       </div>
     </main>

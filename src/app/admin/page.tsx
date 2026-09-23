@@ -4,7 +4,6 @@ import Link from "next/link";
 
 import {
   Award,
-  Download,
   FileText,
   Images,
   Mail,
@@ -50,7 +49,6 @@ interface MessageItem {
 interface DashboardCounts {
   news: number;
   reports: number;
-  downloads: number;
   gallery: number;
   stories: number;
   messages: number;
@@ -62,7 +60,6 @@ interface DashboardCounts {
 const emptyCounts: DashboardCounts = {
   news: 0,
   reports: 0,
-  downloads: 0,
   gallery: 0,
   stories: 0,
   messages: 0,
@@ -87,7 +84,8 @@ async function fetchArray<T>(
       return [];
     }
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
     return Array.isArray(data)
       ? data
@@ -98,27 +96,21 @@ async function fetchArray<T>(
 }
 
 export default function AdminDashboardPage() {
-  const [
-    counts,
-    setCounts,
-  ] = useState<DashboardCounts>(
-    emptyCounts
-  );
+  const [counts, setCounts] =
+    useState<DashboardCounts>(
+      emptyCounts
+    );
 
-  const [
-    news,
-    setNews,
-  ] = useState<NewsItem[]>([]);
+  const [news, setNews] =
+    useState<NewsItem[]>([]);
 
   const [
     messages,
     setMessages,
   ] = useState<MessageItem[]>([]);
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
   async function loadDashboard() {
     setLoading(true);
@@ -127,7 +119,6 @@ export default function AdminDashboardPage() {
       const [
         newsData,
         reportsData,
-        downloadsData,
         galleryData,
         storiesData,
         messagesData,
@@ -141,10 +132,6 @@ export default function AdminDashboardPage() {
 
         fetchArray(
           "/api/reports"
-        ),
-
-        fetchArray(
-          "/api/downloads"
         ),
 
         fetchArray(
@@ -174,17 +161,15 @@ export default function AdminDashboardPage() {
 
       setCounts({
         news: newsData.length,
-        reports: reportsData.length,
-        downloads:
-          downloadsData.length,
+        reports:
+          reportsData.length,
         gallery:
           galleryData.length,
         stories:
           storiesData.length,
         messages:
           messagesData.length,
-        team:
-          teamData.length,
+        team: teamData.length,
         achievements:
           achievementsData.length,
         services:
@@ -228,91 +213,111 @@ export default function AdminDashboardPage() {
     news.length -
     publishedNews;
 
-  const recentMessages =
-    [...messages]
-      .sort(
-        (a, b) =>
-          new Date(
-            b.createdAt
-          ).getTime() -
-          new Date(
-            a.createdAt
-          ).getTime()
-      )
-      .slice(0, 4);
+  const recentMessages = [
+    ...messages,
+  ]
+    .sort(
+      (
+        a,
+        b
+      ) =>
+        new Date(
+          b.createdAt
+        ).getTime() -
+        new Date(
+          a.createdAt
+        ).getTime()
+    )
+    .slice(
+      0,
+      4
+    );
 
-  const recentNews =
-    [...news]
-      .sort(
-        (a, b) =>
-          new Date(
-            b.createdAt || 0
-          ).getTime() -
-          new Date(
-            a.createdAt || 0
-          ).getTime()
-      )
-      .slice(0, 4);
+  const recentNews = [
+    ...news,
+  ]
+    .sort(
+      (
+        a,
+        b
+      ) =>
+        new Date(
+          b.createdAt ||
+            0
+        ).getTime() -
+        new Date(
+          a.createdAt ||
+            0
+        ).getTime()
+    )
+    .slice(
+      0,
+      4
+    );
 
   const stats = [
     {
       label: "News",
-      value: counts.news,
-      href: "/admin/news",
-      icon: Newspaper,
-      description:
-        `${publishedNews} published`,
+      value:
+        counts.news,
+      href:
+        "/admin/news",
+      icon:
+        Newspaper,
+      description: `${publishedNews} published`,
     },
+
     {
-      label: "Messages",
+      label:
+        "Messages",
       value:
         counts.messages,
       href:
         "/admin/messages",
-      icon: Mail,
-      description:
-        `${unreadMessages} unread`,
+      icon:
+        Mail,
+      description: `${unreadMessages} unread`,
     },
+
     {
-      label: "Services",
+      label:
+        "Services",
       value:
         counts.services,
       href:
         "/admin/services",
-      icon: ShoppingBag,
+      icon:
+        ShoppingBag,
       description:
         "Deposit, loans & digital",
     },
+
     {
-      label: "Downloads",
-      value:
-        counts.downloads,
-      href:
-        "/admin/downloads",
-      icon: Download,
-      description:
-        "Files available",
-    },
-    {
-      label: "Reports",
+      label:
+        "Reports",
       value:
         counts.reports,
       href:
         "/admin/reports",
-      icon: FileText,
+      icon:
+        FileText,
       description:
         "Published reports",
     },
+
     {
-      label: "Gallery",
+      label:
+        "Gallery",
       value:
         counts.gallery,
       href:
         "/admin/gallery",
-      icon: Images,
+      icon:
+        Images,
       description:
         "Gallery items",
     },
+
     {
       label:
         "Success Stories",
@@ -325,16 +330,20 @@ export default function AdminDashboardPage() {
       description:
         "Member stories",
     },
+
     {
-      label: "Team",
+      label:
+        "Team",
       value:
         counts.team,
       href:
         "/admin/team",
-      icon: Users,
+      icon:
+        Users,
       description:
         "People listed",
     },
+
     {
       label:
         "Achievements",
@@ -342,7 +351,8 @@ export default function AdminDashboardPage() {
         counts.achievements,
       href:
         "/admin/achievements",
-      icon: Award,
+      icon:
+        Award,
       description:
         "Awards & milestones",
     },
@@ -351,29 +361,26 @@ export default function AdminDashboardPage() {
   const totalContent =
     counts.news +
     counts.reports +
-    counts.downloads +
     counts.gallery +
     counts.stories +
     counts.services +
     counts.achievements;
 
   return (
-    <main className="min-h-screen bg-[#f6f8f7] px-4 py-6 sm:px-6 sm:py-8">
+    <main className="min-h-screen bg-[#f6f8fc] px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-7xl">
-
         {/* TOP */}
 
-        <div className="overflow-hidden rounded-[28px] bg-gradient-to-br from-green-800 via-green-700 to-emerald-600 p-6 text-white shadow-lg sm:p-8">
+        <div className="overflow-hidden rounded-[28px] bg-gradient-to-br from-[#162E6A] via-[#1F3C88] to-[#3157B7] p-6 text-white shadow-lg sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-
             <div>
-              <div className="flex items-center gap-2 text-green-100">
+              <div className="flex items-center gap-2 text-blue-100">
                 <Sparkles
                   size={17}
                 />
 
                 <span className="text-xs font-semibold uppercase tracking-[0.18em]">
-                  Mahila SACCOS CMS
+                  Byas SACCOS CMS
                 </span>
               </div>
 
@@ -381,19 +388,21 @@ export default function AdminDashboardPage() {
                 Admin Dashboard
               </h1>
 
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-green-50/90 sm:text-base">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-50/90 sm:text-base">
                 Manage website
-                content, services,
-                documents and member
-                communication from one
-                place.
+                content,
+                services,
+                reports and
+                member
+                communication
+                from one place.
               </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/admin/news"
-                className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-green-800 shadow-sm transition hover:bg-green-50"
+                className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#1F3C88] shadow-sm transition hover:bg-[#EEF4FF]"
               >
                 + Add News
               </Link>
@@ -436,9 +445,7 @@ export default function AdminDashboardPage() {
             />
 
             <TopSummary
-              icon={
-                Mail
-              }
+              icon={Mail}
               label="Unread Messages"
               value={
                 unreadMessages
@@ -446,9 +453,7 @@ export default function AdminDashboardPage() {
             />
 
             <TopSummary
-              icon={
-                Eye
-              }
+              icon={Eye}
               label="Hidden News"
               value={
                 hiddenNews
@@ -463,19 +468,24 @@ export default function AdminDashboardPage() {
           <div className="mb-4 flex items-end justify-between">
             <div>
               <h2 className="text-xl font-bold text-gray-900">
-                Content Overview
+                Content
+                Overview
               </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Live quantities
-                from your website.
+                Live
+                quantities
+                from your
+                website.
               </p>
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {stats.map(
-              (item) => {
+              (
+                item
+              ) => {
                 const Icon =
                   item.icon;
 
@@ -487,10 +497,10 @@ export default function AdminDashboardPage() {
                     href={
                       item.href
                     }
-                    className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-green-200 hover:shadow-lg"
+                    className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg"
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-700 transition group-hover:bg-green-700 group-hover:text-white">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EEF4FF] text-[#1F3C88] transition group-hover:bg-[#1F3C88] group-hover:text-white">
                         <Icon
                           size={
                             20
@@ -499,8 +509,10 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <ArrowUpRight
-                        size={18}
-                        className="text-gray-300 transition group-hover:text-green-700"
+                        size={
+                          18
+                        }
+                        className="text-gray-300 transition group-hover:text-[#1F3C88]"
                       />
                     </div>
 
@@ -531,25 +543,26 @@ export default function AdminDashboardPage() {
         {/* LOWER DASHBOARD */}
 
         <div className="mt-7 grid gap-6 xl:grid-cols-2">
-
           {/* MESSAGES */}
 
           <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4 sm:px-6">
               <div>
                 <h2 className="font-bold text-gray-900">
-                  Recent Messages
+                  Recent
+                  Messages
                 </h2>
 
                 <p className="mt-1 text-xs text-gray-400">
-                  Latest contact
+                  Latest
+                  contact
                   submissions
                 </p>
               </div>
 
               <Link
                 href="/admin/messages"
-                className="text-sm font-semibold text-green-700 hover:underline"
+                className="text-sm font-semibold text-[#1F3C88] hover:underline"
               >
                 View all
               </Link>
@@ -559,13 +572,15 @@ export default function AdminDashboardPage() {
               {recentMessages.length >
               0 ? (
                 recentMessages.map(
-                  (message) => (
+                  (
+                    message
+                  ) => (
                     <Link
                       key={
                         message._id
                       }
                       href="/admin/messages"
-                      className="flex gap-4 px-5 py-4 transition hover:bg-gray-50 sm:px-6"
+                      className="flex gap-4 px-5 py-4 transition hover:bg-[#F8FAFF] sm:px-6"
                     >
                       <div
                         className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${
@@ -621,14 +636,15 @@ export default function AdminDashboardPage() {
                 </h2>
 
                 <p className="mt-1 text-xs text-gray-400">
-                  Recently created
+                  Recently
+                  created
                   articles
                 </p>
               </div>
 
               <Link
                 href="/admin/news"
-                className="text-sm font-semibold text-green-700 hover:underline"
+                className="text-sm font-semibold text-[#1F3C88] hover:underline"
               >
                 Manage
               </Link>
@@ -638,15 +654,17 @@ export default function AdminDashboardPage() {
               {recentNews.length >
               0 ? (
                 recentNews.map(
-                  (item) => (
+                  (
+                    item
+                  ) => (
                     <Link
                       key={
                         item._id
                       }
                       href="/admin/news"
-                      className="flex items-center gap-4 px-5 py-4 transition hover:bg-gray-50 sm:px-6"
+                      className="flex items-center gap-4 px-5 py-4 transition hover:bg-[#F8FAFF] sm:px-6"
                     >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-700">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EEF4FF] text-[#1F3C88]">
                         <Newspaper
                           size={
                             18
@@ -691,7 +709,9 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <ArrowUpRight
-                        size={16}
+                        size={
+                          16
+                        }
                         className="text-gray-300"
                       />
                     </Link>
@@ -713,8 +733,10 @@ export default function AdminDashboardPage() {
             </h2>
 
             <p className="mt-1 text-xs text-gray-400">
-              Jump directly to
-              common administrative
+              Jump
+              directly to
+              common
+              administrative
               tasks.
             </p>
           </div>
@@ -733,11 +755,6 @@ export default function AdminDashboardPage() {
             <QuickAction
               href="/admin/gallery"
               text="Upload Gallery"
-            />
-
-            <QuickAction
-              href="/admin/downloads"
-              text="Add Download"
             />
 
             <QuickAction
@@ -769,9 +786,7 @@ function TopSummary({
     <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
-          <Icon
-            size={18}
-          />
+          <Icon size={18} />
         </div>
 
         <div>
@@ -779,7 +794,7 @@ function TopSummary({
             {value}
           </p>
 
-          <p className="text-xs text-green-100">
+          <p className="text-xs text-blue-100">
             {label}
           </p>
         </div>
@@ -798,7 +813,7 @@ function QuickAction({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:border-green-200 hover:bg-green-50 hover:text-green-700"
+      className="group flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:border-blue-200 hover:bg-[#EEF4FF] hover:text-[#1F3C88]"
     >
       {text}
 

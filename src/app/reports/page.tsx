@@ -5,12 +5,9 @@ interface Report {
 }
 
 async function getReports(): Promise<Report[]> {
-  const response = await fetch(
-    "http://localhost:5000/api/reports",
-    {
-      cache: "no-store",
-    }
-  );
+  const response = await fetch("http://localhost:5000/api/reports", {
+    cache: "no-store",
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch reports");
@@ -25,45 +22,28 @@ export default async function ReportPage() {
   return (
     <main className="min-h-screen bg-gray-100 py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-
         <div className="mb-10 text-center">
-          <p className="font-semibold uppercase text-yellow-500">
-            Our Update
-          </p>
+          <p className="font-semibold uppercase text-yellow-500">Our Update</p>
 
-          <h1 className="mt-2 text-3xl font-semibold text-gray-700">
-            Report
-          </h1>
+          <h1 className="mt-2 text-3xl font-semibold text-gray-700">Report</h1>
 
-          <p className="mt-2 text-gray-500">
-            More Reports View
-          </p>
+          <p className="mt-2 text-gray-500">More Reports View</p>
         </div>
 
         <div className="overflow-x-auto bg-white shadow-sm">
           <table className="w-full min-w-[600px]">
-
             <thead className="bg-yellow-50">
               <tr>
-                <th className="px-6 py-4 text-left">
-                  Particular Description
-                </th>
+                <th className="px-6 py-4 text-left">Particular Description</th>
 
-                <th className="px-6 py-4 text-center">
-                  Download
-                </th>
+                <th className="px-6 py-4 text-center">Download</th>
               </tr>
             </thead>
 
             <tbody>
               {reports.map((report) => (
-                <tr
-                  key={report._id}
-                  className="border-t border-gray-200"
-                >
-                  <td className="px-6 py-4 text-gray-700">
-                    {report.title}
-                  </td>
+                <tr key={report._id} className="border-t border-gray-200">
+                  <td className="px-6 py-4 text-gray-700">{report.title}</td>
 
                   <td className="px-6 py-4 text-center">
                     {report.fileUrl ? (
@@ -71,14 +51,12 @@ export default async function ReportPage() {
                         href={`http://localhost:5000${report.fileUrl}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block bg-green-600 px-5 py-2 text-sm text-white hover:bg-green-700"
+                        className="inline-block bg-green-600 px-5 py-2 text-sm text-white hover:bg-[#1F3C88]"
                       >
                         Download
                       </a>
                     ) : (
-                      <span className="text-gray-400">
-                        No file
-                      </span>
+                      <span className="text-gray-400">No file</span>
                     )}
                   </td>
                 </tr>
@@ -95,7 +73,6 @@ export default async function ReportPage() {
                 </tr>
               )}
             </tbody>
-
           </table>
         </div>
       </div>

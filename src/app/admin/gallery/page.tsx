@@ -38,10 +38,14 @@ export default function AdminGalleryPage() {
         if (!response.ok) throw new Error("Could not load gallery.");
         return response.json() as Promise<GalleryItem[]>;
       })
-      .then((data) => { if (!controller.signal.aborted) setImages(data); })
+      .then((data) => {
+        if (!controller.signal.aborted) setImages(data);
+      })
       .catch((error: unknown) => {
         if (!controller.signal.aborted) {
-          alert(error instanceof Error ? error.message : "Could not load gallery.");
+          alert(
+            error instanceof Error ? error.message : "Could not load gallery.",
+          );
         }
       });
     return () => controller.abort();
@@ -187,7 +191,7 @@ export default function AdminGalleryPage() {
           <div className="mt-6 flex gap-3">
             <button
               disabled={loading}
-              className="rounded-md bg-green-700 px-6 py-3 text-white disabled:opacity-50"
+              className="rounded-md bg-[#1F3C88] px-6 py-3 text-white disabled:opacity-50"
             >
               {loading ? "Saving..." : editingId ? "Update Image" : "Add Image"}
             </button>

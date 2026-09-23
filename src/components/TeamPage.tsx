@@ -44,8 +44,8 @@ export default async function TeamPage({
       {/* Heading */}
       <section className="border-b bg-white">
         <div className="mx-auto max-w-7xl px-4 py-10 text-center sm:px-6 sm:py-14">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-green-700">
-            Mahila SACCOS
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#1F3C88]">
+            Vyas Credits and Savings
           </p>
 
           <h1 className="mt-2 text-3xl font-bold text-gray-900 sm:text-4xl">
@@ -85,7 +85,7 @@ export default async function TeamPage({
                       {members[0].name}
                     </h2>
 
-                    <p className="mt-1 break-words text-sm font-medium text-green-700">
+                    <p className="mt-1 break-words text-sm font-medium text-[#1F3C88]">
                       {members[0].position}
                     </p>
                   </div>
@@ -120,7 +120,7 @@ export default async function TeamPage({
                         {member.name}
                       </h2>
 
-                      <p className="mt-1 break-words text-sm font-medium text-green-700">
+                      <p className="mt-1 break-words text-sm font-medium text-[#1F3C88]">
                         {member.position}
                       </p>
                     </div>

@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
+
 import Color from "@tiptap/extension-color";
 import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
-import { EditorContent, useEditor } from "@tiptap/react";
+
+import {
+  EditorContent,
+  useEditor,
+} from "@tiptap/react";
+
 import StarterKit from "@tiptap/starter-kit";
 
 import {
@@ -37,7 +43,6 @@ export default function RichTextEditor({
   variant = "content",
 }: Props) {
   const isTitle = variant === "title";
-
   const isCompact = variant === "compact";
 
   const editor = useEditor({
@@ -47,7 +52,10 @@ export default function RichTextEditor({
       Color,
       Underline,
       TextAlign.configure({
-        types: ["heading", "paragraph"],
+        types: [
+          "heading",
+          "paragraph",
+        ],
       }),
     ],
 
@@ -60,25 +68,35 @@ export default function RichTextEditor({
         class: isTitle
           ? "min-h-[90px] px-4 py-3 text-2xl font-bold leading-tight text-gray-900 outline-none [&_p]:my-1 [&_h1]:text-4xl [&_h1]:font-bold [&_h2]:text-3xl [&_h2]:font-bold"
           : isCompact
-            ? "min-h-[130px] px-4 py-3 text-sm leading-6 text-gray-800 outline-none [&_h1]:mt-4 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:mt-4 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:mt-3 [&_h3]:text-lg [&_h3]:font-semibold [&_p]:my-2 [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1 [&_blockquote]:my-3 [&_blockquote]:border-l-4 [&_blockquote]:border-green-600 [&_blockquote]:bg-green-50 [&_blockquote]:px-3 [&_blockquote]:py-2"
-            : "min-h-[300px] px-5 py-4 text-[15px] leading-7 text-gray-800 outline-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:mb-3 [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-semibold [&_p]:my-3 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-7 [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-7 [&_li]:my-1 [&_blockquote]:my-5 [&_blockquote]:border-l-4 [&_blockquote]:border-green-600 [&_blockquote]:bg-green-50 [&_blockquote]:px-4 [&_blockquote]:py-2 [&_blockquote]:italic",
+            ? "min-h-[130px] px-4 py-3 text-sm leading-6 text-gray-800 outline-none [&_h1]:mt-4 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:mt-4 [&_h2]:text-xl [&_h2]:font-bold [&_h3]:mt-3 [&_h3]:text-lg [&_h3]:font-semibold [&_p]:my-2 [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1 [&_blockquote]:my-3 [&_blockquote]:border-l-4 [&_blockquote]:border-[#1F3C88] [&_blockquote]:bg-[#EEF4FF] [&_blockquote]:px-3 [&_blockquote]:py-2"
+            : "min-h-[300px] px-5 py-4 text-[15px] leading-7 text-gray-800 outline-none [&_h1]:mb-4 [&_h1]:mt-6 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:mb-3 [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-semibold [&_p]:my-3 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-7 [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-7 [&_li]:my-1 [&_blockquote]:my-5 [&_blockquote]:border-l-4 [&_blockquote]:border-[#1F3C88] [&_blockquote]:bg-[#EEF4FF] [&_blockquote]:px-4 [&_blockquote]:py-2 [&_blockquote]:italic",
       },
     },
 
     onUpdate({ editor }) {
-      onChange(editor.getHTML());
+      onChange(
+        editor.getHTML()
+      );
     },
   });
 
   useEffect(() => {
     if (!editor) return;
 
-    if (editor.getHTML() !== value) {
-      editor.commands.setContent(value || "", {
-        emitUpdate: false,
-      });
+    if (
+      editor.getHTML() !== value
+    ) {
+      editor.commands.setContent(
+        value || "",
+        {
+          emitUpdate: false,
+        }
+      );
     }
-  }, [editor, value]);
+  }, [
+    editor,
+    value,
+  ]);
 
   if (!editor) {
     return (
@@ -87,10 +105,9 @@ export default function RichTextEditor({
       </div>
     );
   }
-
   const buttonClass = (active = false) =>
     `flex h-9 w-9 items-center justify-center rounded-lg transition ${
-      active ? "bg-green-700 text-white" : "text-gray-600 hover:bg-gray-200"
+      active ? "bg-[#1F3C88] text-white" : "text-gray-600 hover:bg-gray-200"
     }`;
 
   return (

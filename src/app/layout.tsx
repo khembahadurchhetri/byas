@@ -4,10 +4,11 @@ import "./globals.css";
 import SiteShell from "@/components/SiteShell";
 
 export const metadata: Metadata = {
-  title: "Mahila SACCOS",
+  title: "Vyas Credits and Savings",
   description:
-    "Mahila Saving and Credit Cooperative Society Ltd.",
+    "Vyas Saving & Credit Co-Operative Ltd.",
 };
+
 
 export default function RootLayout({
   children,

@@ -2,15 +2,15 @@ export default function FeatureCards() {
   const images = [
     {
       src: "/images/gallery/gallery1.png",
-      alt: "Mahila SACCOS Vision",
+      alt: "Vyas credits and savings",
     },
     {
       src: "/images/gallery/gallery2.png",
-      alt: "Mahila SACCOS Mission",
+      alt: "Vyas credits and savings",
     },
     {
       src: "/images/gallery/gallery3.png",
-      alt: "Mahila SACCOS Strategic Pillars",
+      alt: "Vyas credits and savings",
     },
   ];
 

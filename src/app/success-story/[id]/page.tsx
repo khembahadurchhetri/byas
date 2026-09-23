@@ -59,7 +59,7 @@ export default async function SuccessStoryDetailPage({
             </h1>
 
             {item.title && (
-              <h2 className="mt-2 text-lg font-medium text-green-700">
+              <h2 className="mt-2 text-lg font-medium text-[#1F3C88]">
                 {item.title}
               </h2>
             )}
@@ -71,7 +71,7 @@ export default async function SuccessStoryDetailPage({
             </div>
             <Link
               href="/success-story"
-              className="mt-8 inline-block bg-green-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-green-800"
+              className="mt-8 inline-block bg-[#1F3C88] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#162E6A]"
             >
               ← Back to Success Stories
             </Link>

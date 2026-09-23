@@ -28,7 +28,7 @@ export default async function SuccessStoryPage() {
         {/* Videos will be added here next */}
 
         <div className="mb-10 text-center">
-          <h1 className="text-2xl font-semibold text-green-700 underline underline-offset-8 sm:text-3xl">
+          <h1 className="text-2xl font-semibold text-[#1F3C88] underline underline-offset-8 sm:text-3xl">
             What Our Successful Members Say?
           </h1>
         </div>
@@ -58,7 +58,7 @@ export default async function SuccessStoryPage() {
                   </h2>
 
                   {item.title && (
-                    <p className="mt-1 text-sm font-medium text-green-700">
+                    <p className="mt-1 text-sm font-medium text-[#1F3C88]">
                       {item.title}
                     </p>
                   )}
@@ -71,7 +71,7 @@ export default async function SuccessStoryPage() {
 
                   <Link
                     href={`/success-story/${item._id}`}
-                    className="mt-5 inline-block bg-green-700 px-5 py-2 text-sm font-medium text-white transition hover:bg-green-800"
+                    className="mt-5 inline-block bg-[#1F3C88] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#162E6A]"
                   >
                     Read More
                   </Link>

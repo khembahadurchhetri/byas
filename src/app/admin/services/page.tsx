@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  FormEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 
@@ -21,10 +16,7 @@ import {
 import ConfirmModal from "@/components/ConfirmModal";
 import RichTextEditor from "@/components/RichTextEditor";
 
-type ServiceType =
-  | "content"
-  | "image"
-  | "external-link";
+type ServiceType = "content" | "image" | "external-link";
 
 type ServiceGroup =
   | "savings"
@@ -55,18 +47,12 @@ interface Service {
   published: boolean;
 }
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-const API_URL =
-  `${BACKEND_URL}/api/services`;
+const API_URL = `${BACKEND_URL}/api/services`;
 
 const groups: {
-  value: Exclude<
-    ServiceGroup,
-    "other"
-  >;
+  value: Exclude<ServiceGroup, "other">;
   label: string;
 }[] = [
   {
@@ -105,9 +91,7 @@ const types = [
   },
 ];
 
-function emptySection(
-  order = 1
-): Section {
+function emptySection(order = 1): Section {
   return {
     heading: "",
     content: "",
@@ -115,204 +99,86 @@ function emptySection(
   };
 }
 
-function htmlToText(
-  html: string
-) {
-  const div =
-    document.createElement(
-      "div"
-    );
+function htmlToText(html: string) {
+  const div = document.createElement("div");
 
   div.innerHTML = html;
 
-  return (
-    div.textContent || ""
-  ).trim();
+  return (div.textContent || "").trim();
 }
 
-function publicPath(
-  service: Pick<
-    Service,
-    "group" | "slug"
-  >
-) {
-  if (
-    service.group ===
-    "other"
-  ) {
+function publicPath(service: Pick<Service, "group" | "slug">) {
+  if (service.group === "other") {
     return null;
   }
 
-  const category =
-    service.group ===
-    "savings"
-      ? "deposit"
-      : service.group;
+  const category = service.group === "savings" ? "deposit" : service.group;
 
   return `/services/${category}/${service.slug}`;
 }
 
-function groupLabel(
-  group: ServiceGroup
-) {
+function groupLabel(group: ServiceGroup) {
   if (group === "other") {
     return "Legacy / Other";
   }
 
-  return (
-    groups.find(
-      (item) =>
-        item.value === group
-    )?.label || group
-  );
+  return groups.find((item) => item.value === group)?.label || group;
 }
 
 export default function AdminServicesPage() {
-  const [
-    services,
-    setServices,
-  ] = useState<Service[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
 
-  const [
-    titleHtml,
-    setTitleHtml,
-  ] = useState("");
+  const [titleHtml, setTitleHtml] = useState("");
 
-  const [
-    group,
-    setGroup,
-  ] = useState<
-    Exclude<
-      ServiceGroup,
-      "other"
-    >
-  >("savings");
+  const [group, setGroup] = useState<Exclude<ServiceGroup, "other">>("savings");
 
-  const [
-    type,
-    setType,
-  ] =
-    useState<ServiceType>(
-      "content"
-    );
+  const [type, setType] = useState<ServiceType>("content");
 
-  const [
-    subtitle,
-    setSubtitle,
-  ] = useState("");
+  const [subtitle, setSubtitle] = useState("");
 
-  const [
-    sections,
-    setSections,
-  ] = useState<Section[]>([
-    emptySection(),
-  ]);
+  const [sections, setSections] = useState<Section[]>([emptySection()]);
 
-  const [
-    externalUrl,
-    setExternalUrl,
-  ] = useState("");
+  const [externalUrl, setExternalUrl] = useState("");
 
-  const [
-    buttonText,
-    setButtonText,
-  ] = useState(
-    "Open Link"
-  );
+  const [buttonText, setButtonText] = useState("Open Link");
 
-  const [
-    image,
-    setImage,
-  ] =
-    useState<File | null>(
-      null
-    );
+  const [image, setImage] = useState<File | null>(null);
 
-  const [
-    order,
-    setOrder,
-  ] = useState(1);
+  const [order, setOrder] = useState(1);
 
-  const [
-    published,
-    setPublished,
-  ] = useState(true);
+  const [published, setPublished] = useState(true);
 
-  const [
-    editingId,
-    setEditingId,
-  ] =
-    useState<
-      string | null
-    >(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [
-    deleteId,
-    setDeleteId,
-  ] =
-    useState<
-      string | null
-    >(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [
-    deleting,
-    setDeleting,
-  ] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  const [
-    pageLoading,
-    setPageLoading,
-  ] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
 
-  const [
-    error,
-    setError,
-  ] = useState("");
+  const [error, setError] = useState("");
 
-  const [
-    success,
-    setSuccess,
-  ] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const [
-    filterGroup,
-    setFilterGroup,
-  ] = useState<
-    ServiceGroup | "all"
-  >("all");
+  const [filterGroup, setFilterGroup] = useState<ServiceGroup | "all">("all");
 
   async function loadServices() {
     try {
-      const response =
-        await fetch(
-          API_URL,
-          {
-            cache:
-              "no-store",
-            credentials:
-              "include",
-          }
-        );
+      const response = await fetch(API_URL, {
+        cache: "no-store",
+        credentials: "include",
+      });
 
       if (!response.ok) {
-        throw new Error(
-          "Could not load services."
-        );
+        throw new Error("Could not load services.");
       }
 
-      setServices(
-        await response.json()
-      );
+      setServices(await response.json());
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Could not load services."
+        error instanceof Error ? error.message : "Could not load services.",
       );
     } finally {
       setPageLoading(false);
@@ -330,17 +196,9 @@ export default function AdminServicesPage() {
       return;
     }
 
-    const timer =
-      window.setTimeout(
-        () =>
-          setSuccess(""),
-        3000
-      );
+    const timer = window.setTimeout(() => setSuccess(""), 3000);
 
-    return () =>
-      window.clearTimeout(
-        timer
-      );
+    return () => window.clearTimeout(timer);
   }, [success]);
 
   /* AUTO-HIDE ERROR */
@@ -350,43 +208,23 @@ export default function AdminServicesPage() {
       return;
     }
 
-    const timer =
-      window.setTimeout(
-        () =>
-          setError(""),
-        5000
-      );
+    const timer = window.setTimeout(() => setError(""), 5000);
 
-    return () =>
-      window.clearTimeout(
-        timer
-      );
+    return () => window.clearTimeout(timer);
   }, [error]);
 
-  const visibleServices =
-    useMemo(() => {
-      if (
-        filterGroup ===
-        "all"
-      ) {
-        return services;
-      }
+  const visibleServices = useMemo(() => {
+    if (filterGroup === "all") {
+      return services;
+    }
 
-      return services.filter(
-        (service) =>
-          service.group ===
-          filterGroup
-      );
-    }, [
-      services,
-      filterGroup,
-    ]);
+    return services.filter((service) => service.group === filterGroup);
+  }, [services, filterGroup]);
 
   function clearFile() {
-    const input =
-      document.getElementById(
-        "service-image"
-      ) as HTMLInputElement | null;
+    const input = document.getElementById(
+      "service-image",
+    ) as HTMLInputElement | null;
 
     if (input) {
       input.value = "";
@@ -399,14 +237,10 @@ export default function AdminServicesPage() {
     setType("content");
     setSubtitle("");
 
-    setSections([
-      emptySection(),
-    ]);
+    setSections([emptySection()]);
 
     setExternalUrl("");
-    setButtonText(
-      "Open Link"
-    );
+    setButtonText("Open Link");
 
     setImage(null);
     setOrder(1);
@@ -417,79 +251,44 @@ export default function AdminServicesPage() {
   }
 
   function addSection() {
-    setSections(
-      (current) => [
-        ...current,
-
-        emptySection(
-          current.length + 1
-        ),
-      ]
-    );
+    setSections((current) => [...current, emptySection(current.length + 1)]);
   }
 
-  function removeSection(
-    index: number
-  ) {
-    setSections(
-      (current) =>
-        current
-          .filter(
-            (_, i) =>
-              i !== index
-          )
-          .map(
-            (
-              section,
-              i
-            ) => ({
-              ...section,
-              order:
-                i + 1,
-            })
-          )
+  function removeSection(index: number) {
+    setSections((current) =>
+      current
+        .filter((_, i) => i !== index)
+        .map((section, i) => ({
+          ...section,
+          order: i + 1,
+        })),
     );
   }
 
   function updateSection(
     index: number,
-    field:
-      | "heading"
-      | "content",
-    value: string
+    field: "heading" | "content",
+    value: string,
   ) {
-    setSections(
-      (current) =>
-        current.map(
-          (
-            section,
-            i
-          ) =>
-            i === index
-              ? {
-                  ...section,
-                  [field]:
-                    value,
-                }
-              : section
-        )
+    setSections((current) =>
+      current.map((section, i) =>
+        i === index
+          ? {
+              ...section,
+              [field]: value,
+            }
+          : section,
+      ),
     );
   }
 
-  function editService(
-    service: Service
-  ) {
+  function editService(service: Service) {
     setError("");
     setSuccess("");
 
-    setEditingId(
-      service._id
-    );
+    setEditingId(service._id);
 
-    setTitleHtml(
-      service.titleHtml ||
-        `<p>${service.title}</p>`
-    );
+    setTitleHtml(service.titleHtml || `<p>${service.title}</p>`);
 
     /*
       Old "other" items are legacy.
@@ -497,48 +296,21 @@ export default function AdminServicesPage() {
       unless you choose another category.
     */
 
-    setGroup(
-      service.group ===
-        "other"
-        ? "savings"
-        : service.group
-    );
+    setGroup(service.group === "other" ? "savings" : service.group);
 
-    setType(
-      service.type
-    );
+    setType(service.type);
 
-    setSubtitle(
-      service.subtitle ||
-        ""
-    );
+    setSubtitle(service.subtitle || "");
 
-    setSections(
-      service.sections
-        ?.length
-        ? service.sections
-        : [
-            emptySection(),
-          ]
-    );
+    setSections(service.sections?.length ? service.sections : [emptySection()]);
 
-    setExternalUrl(
-      service.externalUrl ||
-        ""
-    );
+    setExternalUrl(service.externalUrl || "");
 
-    setButtonText(
-      service.buttonText ||
-        "Open Link"
-    );
+    setButtonText(service.buttonText || "Open Link");
 
-    setOrder(
-      service.order || 1
-    );
+    setOrder(service.order || 1);
 
-    setPublished(
-      service.published
-    );
+    setPublished(service.published);
 
     setImage(null);
 
@@ -550,140 +322,72 @@ export default function AdminServicesPage() {
     });
   }
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
     setSuccess("");
 
-    const plainTitle =
-      htmlToText(
-        titleHtml
-      );
+    const plainTitle = htmlToText(titleHtml);
 
     if (!plainTitle) {
-      setError(
-        "Please enter a service title."
-      );
+      setError("Please enter a service title.");
 
       return;
     }
 
-    if (
-      type ===
-        "external-link" &&
-      !externalUrl.trim()
-    ) {
-      setError(
-        "Please enter the external URL."
-      );
+    if (type === "external-link" && !externalUrl.trim()) {
+      setError("Please enter the external URL.");
 
       return;
     }
 
-    const formData =
-      new FormData();
+    const formData = new FormData();
 
-    formData.append(
-      "title",
-      plainTitle
-    );
+    formData.append("title", plainTitle);
 
-    formData.append(
-      "titleHtml",
-      titleHtml
-    );
+    formData.append("titleHtml", titleHtml);
 
-    formData.append(
-      "group",
-      group
-    );
+    formData.append("group", group);
 
-    formData.append(
-      "type",
-      type
-    );
+    formData.append("type", type);
 
-    formData.append(
-      "subtitle",
-      subtitle.trim()
-    );
+    formData.append("subtitle", subtitle.trim());
 
-    formData.append(
-      "sections",
-      JSON.stringify(
-        sections
-      )
-    );
+    formData.append("sections", JSON.stringify(sections));
 
-    formData.append(
-      "externalUrl",
-      externalUrl.trim()
-    );
+    formData.append("externalUrl", externalUrl.trim());
 
-    formData.append(
-      "buttonText",
-      buttonText.trim()
-    );
+    formData.append("buttonText", buttonText.trim());
 
-    formData.append(
-      "order",
-      String(order)
-    );
+    formData.append("order", String(order));
 
-    formData.append(
-      "published",
-      String(published)
-    );
+    formData.append("published", String(published));
 
     if (image) {
-      formData.append(
-        "image",
-        image
-      );
+      formData.append("image", image);
     }
 
     setLoading(true);
 
     try {
-      const wasEditing =
-        Boolean(
-          editingId
-        );
+      const wasEditing = Boolean(editingId);
 
-      const response =
-        await fetch(
-          editingId
-            ? `${API_URL}/${editingId}`
-            : API_URL,
-          {
-            method:
-              editingId
-                ? "PATCH"
-                : "POST",
+      const response = await fetch(
+        editingId ? `${API_URL}/${editingId}` : API_URL,
+        {
+          method: editingId ? "PATCH" : "POST",
 
-            credentials:
-              "include",
+          credentials: "include",
 
-            body:
-              formData,
-          }
-        );
+          body: formData,
+        },
+      );
 
-      const data =
-        await response
-          .json()
-          .catch(
-            () => null
-          );
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(
-          data?.message ||
-            "Could not save service."
-        );
+        throw new Error(data?.message || "Could not save service.");
       }
 
       resetForm();
@@ -693,13 +397,11 @@ export default function AdminServicesPage() {
       setSuccess(
         wasEditing
           ? "Service updated successfully."
-          : "Service added successfully."
+          : "Service added successfully.",
       );
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Could not save service."
+        error instanceof Error ? error.message : "Could not save service.",
       );
     } finally {
       setLoading(false);
@@ -715,28 +417,17 @@ export default function AdminServicesPage() {
     setError("");
 
     try {
-      const response =
-        await fetch(
-          `${API_URL}/${deleteId}`,
-          {
-            method:
-              "DELETE",
+      const response = await fetch(`${API_URL}/${deleteId}`, {
+        method: "DELETE",
 
-            credentials:
-              "include",
-          }
-        );
+        credentials: "include",
+      });
 
       if (!response.ok) {
-        throw new Error(
-          "Could not delete service."
-        );
+        throw new Error("Could not delete service.");
       }
 
-      if (
-        editingId ===
-        deleteId
-      ) {
+      if (editingId === deleteId) {
         resetForm();
       }
 
@@ -744,14 +435,10 @@ export default function AdminServicesPage() {
 
       await loadServices();
 
-      setSuccess(
-        "Service deleted successfully."
-      );
+      setSuccess("Service deleted successfully.");
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Could not delete service."
+        error instanceof Error ? error.message : "Could not delete service.",
       );
     } finally {
       setDeleting(false);
@@ -761,12 +448,11 @@ export default function AdminServicesPage() {
   return (
     <main className="min-h-screen bg-[#f6f8f7] px-4 py-6 sm:px-6">
       <div className="mx-auto max-w-7xl">
-
         {/* HEADER */}
 
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-green-700">
-            Mahila SACCOS CMS
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1F3C88]">
+            Credits and Savings Vyas CMS
           </p>
 
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-gray-950">
@@ -774,43 +460,33 @@ export default function AdminServicesPage() {
           </h1>
 
           <p className="mt-2 text-sm text-gray-500">
-            Create and manage Deposit,
-            Loan, Documents and Digital
-            services.
+            Create and manage Deposit, Loan, Documents and Digital services.
           </p>
         </div>
 
         {/* FORM */}
 
         <form
-          onSubmit={
-            handleSubmit
-          }
+          onSubmit={handleSubmit}
           className="mt-6 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm"
         >
-
           {/* FORM HEADER */}
 
           <div className="flex flex-col gap-3 border-b bg-gray-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
               <h2 className="font-bold text-gray-900">
-                {editingId
-                  ? "Edit Service"
-                  : "New Service"}
+                {editingId ? "Edit Service" : "New Service"}
               </h2>
 
               <p className="mt-1 text-xs text-gray-400">
-                Fill only the information
-                required for this service.
+                Fill only the information required for this service.
               </p>
             </div>
 
             {editingId && (
               <button
                 type="button"
-                onClick={
-                  resetForm
-                }
+                onClick={resetForm}
                 className="w-fit rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
               >
                 Cancel Edit
@@ -821,11 +497,9 @@ export default function AdminServicesPage() {
           {/* FORM GRID */}
 
           <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1fr_280px]">
-
             {/* LEFT CONTENT */}
 
             <div className="space-y-5">
-
               {/* CATEGORY */}
 
               <div>
@@ -834,31 +508,20 @@ export default function AdminServicesPage() {
                 </label>
 
                 <div className="flex flex-wrap gap-2">
-                  {groups.map(
-                    (item) => (
-                      <button
-                        key={
-                          item.value
-                        }
-                        type="button"
-                        onClick={() =>
-                          setGroup(
-                            item.value
-                          )
-                        }
-                        className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
-                          group ===
-                          item.value
-                            ? "bg-green-700 text-white"
-                            : "border border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50"
-                        }`}
-                      >
-                        {
-                          item.label
-                        }
-                      </button>
-                    )
-                  )}
+                  {groups.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setGroup(item.value)}
+                      className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                        group === item.value
+                          ? "bg-[#1F3C88] text-white"
+                          : "border border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -871,12 +534,8 @@ export default function AdminServicesPage() {
 
                 <RichTextEditor
                   variant="title"
-                  value={
-                    titleHtml
-                  }
-                  onChange={
-                    setTitleHtml
-                  }
+                  value={titleHtml}
+                  onChange={setTitleHtml}
                 />
               </div>
 
@@ -889,18 +548,8 @@ export default function AdminServicesPage() {
 
                 <textarea
                   rows={2}
-                  value={
-                    subtitle
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setSubtitle(
-                      event
-                        .target
-                        .value
-                    )
-                  }
+                  value={subtitle}
+                  onChange={(event) => setSubtitle(event.target.value)}
                   placeholder="A short explanation shown below the title."
                   className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-100"
                 />
@@ -914,49 +563,32 @@ export default function AdminServicesPage() {
                 </label>
 
                 <div className="flex flex-wrap gap-2">
-                  {types.map(
-                    (item) => {
-                      const Icon =
-                        item.icon;
+                  {types.map((item) => {
+                    const Icon = item.icon;
 
-                      return (
-                        <button
-                          key={
-                            item.value
-                          }
-                          type="button"
-                          onClick={() =>
-                            setType(
-                              item.value
-                            )
-                          }
-                          className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
-                            type ===
-                            item.value
-                              ? "border-green-700 bg-green-700 text-white"
-                              : "border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50"
-                          }`}
-                        >
-                          <Icon
-                            size={
-                              16
-                            }
-                          />
+                    return (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => setType(item.value)}
+                        className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
+                          type === item.value
+                            ? "border-green-700 bg-[#1F3C88] text-white"
+                            : "border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50"
+                        }`}
+                      >
+                        <Icon size={16} />
 
-                          {
-                            item.label
-                          }
-                        </button>
-                      );
-                    }
-                  )}
+                        {item.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* CONTENT SECTIONS */}
 
-              {type ===
-                "content" && (
+              {type === "content" && (
                 <div>
                   <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
@@ -965,151 +597,102 @@ export default function AdminServicesPage() {
                       </h3>
 
                       <p className="mt-1 text-xs text-gray-400">
-                        Create headings,
-                        paragraphs, bullets
-                        and numbered lists.
+                        Create headings, paragraphs, bullets and numbered lists.
                       </p>
                     </div>
 
                     <button
                       type="button"
-                      onClick={
-                        addSection
-                      }
-                      className="flex w-fit items-center gap-1.5 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700 transition hover:bg-green-100"
+                      onClick={addSection}
+                      className="flex w-fit items-center gap-1.5 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-[#1F3C88] transition hover:bg-green-100"
                     >
-                      <Plus
-                        size={14}
-                      />
-
+                      <Plus size={14} />
                       Add Section
                     </button>
                   </div>
 
                   <div className="space-y-4">
-                    {sections.map(
-                      (
-                        section,
-                        index
-                      ) => (
-                        <div
-                          key={
-                            index
-                          }
-                          className="rounded-2xl border border-gray-200 bg-gray-50 p-3 sm:p-4"
-                        >
+                    {sections.map((section, index) => (
+                      <div
+                        key={index}
+                        className="rounded-2xl border border-gray-200 bg-gray-50 p-3 sm:p-4"
+                      >
+                        {/* SECTION HEADER */}
 
-                          {/* SECTION HEADER */}
-
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-xs font-bold text-green-700">
-                              {index +
-                                1}
-                            </div>
-
-                            <input
-                              value={
-                                section.heading
-                              }
-                              onChange={(
-                                event
-                              ) =>
-                                updateSection(
-                                  index,
-                                  "heading",
-                                  event
-                                    .target
-                                    .value
-                                )
-                              }
-                              placeholder="Section heading, e.g. उद्देश्यहरू"
-                              className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-green-500"
-                            />
-
-                            {sections.length >
-                              1 && (
-                              <button
-                                type="button"
-                                title="Remove section"
-                                onClick={() =>
-                                  removeSection(
-                                    index
-                                  )
-                                }
-                                className="rounded-lg p-2 text-red-500 transition hover:bg-red-50"
-                              >
-                                <Trash2
-                                  size={
-                                    16
-                                  }
-                                />
-                              </button>
-                            )}
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-xs font-bold text-[#1F3C88]">
+                            {index + 1}
                           </div>
 
-                          {/* COMPACT RICH EDITOR */}
+                          <input
+                            value={section.heading}
+                            onChange={(event) =>
+                              updateSection(
+                                index,
+                                "heading",
+                                event.target.value,
+                              )
+                            }
+                            placeholder="Section heading, e.g. उद्देश्यहरू"
+                            className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-green-500"
+                          />
 
-                          <div className="mt-3">
-                            <RichTextEditor
-                              variant="compact"
-                              value={
-                                section.content
-                              }
-                              onChange={(
-                                value
-                              ) =>
-                                updateSection(
-                                  index,
-                                  "content",
-                                  value
-                                )
-                              }
-                            />
-                          </div>
+                          {sections.length > 1 && (
+                            <button
+                              type="button"
+                              title="Remove section"
+                              onClick={() => removeSection(index)}
+                              className="rounded-lg p-2 text-red-500 transition hover:bg-red-50"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
                         </div>
-                      )
-                    )}
+
+                        {/* COMPACT RICH EDITOR */}
+
+                        <div className="mt-3">
+                          <RichTextEditor
+                            variant="compact"
+                            value={section.content}
+                            onChange={(value) =>
+                              updateSection(index, "content", value)
+                            }
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
 
               {/* IMAGE TYPE */}
 
-              {type ===
-                "image" && (
+              {type === "image" && (
                 <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                   <label className="text-sm font-bold text-gray-700">
                     Service Image / Poster
                   </label>
 
                   <p className="mt-1 text-xs text-gray-400">
-                    Upload a JPG,
-                    PNG or WebP poster.
+                    Upload a JPG, PNG or WebP poster.
                   </p>
 
                   <input
                     id="service-image"
                     type="file"
                     accept=".jpg,.jpeg,.png,.webp"
-                    onChange={(
-                      event
-                    ) =>
-                      setImage(
-                        event
-                          .target
-                          .files?.[0] ||
-                          null
-                      )
+                    onChange={(event) =>
+                      setImage(event.target.files?.[0] || null)
                     }
-                    className="mt-3 block w-full text-sm text-gray-500 file:mr-3 file:rounded-lg file:border-0 file:bg-green-700 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white"
+                    className="mt-3 block w-full text-sm text-gray-500 file:mr-3 file:rounded-lg file:border-0 file:bg-[#1F3C88] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white"
                   />
                 </div>
               )}
 
               {/* EXTERNAL TYPE */}
 
-              {type ===
-                "external-link" && (
+              {type === "external-link" && (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -1117,18 +700,8 @@ export default function AdminServicesPage() {
                     </label>
 
                     <input
-                      value={
-                        externalUrl
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setExternalUrl(
-                          event
-                            .target
-                            .value
-                        )
-                      }
+                      value={externalUrl}
+                      onChange={(event) => setExternalUrl(event.target.value)}
                       placeholder="https://..."
                       className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-green-500"
                     />
@@ -1140,18 +713,8 @@ export default function AdminServicesPage() {
                     </label>
 
                     <input
-                      value={
-                        buttonText
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setButtonText(
-                          event
-                            .target
-                            .value
-                        )
-                      }
+                      value={buttonText}
+                      onChange={(event) => setButtonText(event.target.value)}
                       placeholder="Open Link"
                       className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-green-500"
                     />
@@ -1164,9 +727,7 @@ export default function AdminServicesPage() {
 
             <aside>
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                <h3 className="text-sm font-bold text-gray-900">
-                  Settings
-                </h3>
+                <h3 className="text-sm font-bold text-gray-900">Settings</h3>
 
                 {/* PUBLISHED */}
 
@@ -1183,22 +744,14 @@ export default function AdminServicesPage() {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setPublished(
-                        !published
-                      )
-                    }
+                    onClick={() => setPublished(!published)}
                     className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-                      published
-                        ? "bg-green-700"
-                        : "bg-gray-300"
+                      published ? "bg-[#1F3C88]" : "bg-gray-300"
                     }`}
                   >
                     <span
                       className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${
-                        published
-                          ? "left-6"
-                          : "left-1"
+                        published ? "left-6" : "left-1"
                       }`}
                     />
                   </button>
@@ -1215,23 +768,14 @@ export default function AdminServicesPage() {
                     type="number"
                     min={1}
                     value={order}
-                    onChange={(
-                      event
-                    ) =>
-                      setOrder(
-                        Number(
-                          event
-                            .target
-                            .value
-                        ) || 1
-                      )
+                    onChange={(event) =>
+                      setOrder(Number(event.target.value) || 1)
                     }
                     className="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-green-500"
                   />
 
                   <p className="mt-1 text-xs text-gray-400">
-                    Smaller numbers
-                    appear first.
+                    Smaller numbers appear first.
                   </p>
                 </div>
               </div>
@@ -1244,9 +788,7 @@ export default function AdminServicesPage() {
             {editingId && (
               <button
                 type="button"
-                onClick={
-                  resetForm
-                }
+                onClick={resetForm}
                 className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
               >
                 Cancel
@@ -1255,10 +797,8 @@ export default function AdminServicesPage() {
 
             <button
               type="submit"
-              disabled={
-                loading
-              }
-              className="rounded-xl bg-green-700 px-7 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={loading}
+              className="rounded-xl bg-[#1F3C88] px-7 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#162E6A] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading
                 ? "Saving..."
@@ -1270,11 +810,10 @@ export default function AdminServicesPage() {
 
           {/* MESSAGES */}
 
-          {(success ||
-            error) && (
+          {(success || error) && (
             <div className="border-t px-5 py-4 sm:px-6">
               {success && (
-                <div className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                <div className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-[#1F3C88]">
                   {success}
                 </div>
               )}
@@ -1299,10 +838,7 @@ export default function AdminServicesPage() {
 
               <p className="mt-1 text-sm text-gray-500">
                 {services.length}{" "}
-                {services.length === 1
-                  ? "service"
-                  : "services"}{" "}
-                in total.
+                {services.length === 1 ? "service" : "services"} in total.
               </p>
             </div>
 
@@ -1310,41 +846,21 @@ export default function AdminServicesPage() {
 
             <div className="flex flex-wrap gap-2">
               <Filter
-                active={
-                  filterGroup ===
-                  "all"
-                }
-                onClick={() =>
-                  setFilterGroup(
-                    "all"
-                  )
-                }
+                active={filterGroup === "all"}
+                onClick={() => setFilterGroup("all")}
               >
                 All
               </Filter>
 
-              {groups.map(
-                (item) => (
-                  <Filter
-                    key={
-                      item.value
-                    }
-                    active={
-                      filterGroup ===
-                      item.value
-                    }
-                    onClick={() =>
-                      setFilterGroup(
-                        item.value
-                      )
-                    }
-                  >
-                    {
-                      item.label
-                    }
-                  </Filter>
-                )
-              )}
+              {groups.map((item) => (
+                <Filter
+                  key={item.value}
+                  active={filterGroup === item.value}
+                  onClick={() => setFilterGroup(item.value)}
+                >
+                  {item.label}
+                </Filter>
+              ))}
             </div>
           </div>
 
@@ -1356,132 +872,90 @@ export default function AdminServicesPage() {
             </div>
           ) : (
             <div className="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-              {visibleServices.map(
-                (
-                  service,
-                  index
-                ) => {
-                  const viewPath =
-                    publicPath(
-                      service
-                    );
+              {visibleServices.map((service, index) => {
+                const viewPath = publicPath(service);
 
-                  return (
-                    <article
-                      key={
-                        service._id
-                      }
-                      className={`flex flex-col gap-4 p-4 transition hover:bg-gray-50 sm:flex-row sm:items-center ${
-                        index !==
-                        visibleServices.length -
-                          1
-                          ? "border-b border-gray-100"
-                          : ""
-                      }`}
-                    >
-                      {/* ICON */}
+                return (
+                  <article
+                    key={service._id}
+                    className={`flex flex-col gap-4 p-4 transition hover:bg-gray-50 sm:flex-row sm:items-center ${
+                      index !== visibleServices.length - 1
+                        ? "border-b border-gray-100"
+                        : ""
+                    }`}
+                  >
+                    {/* ICON */}
 
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-700">
-                        <Layers3
-                          size={18}
-                        />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-[#1F3C88]">
+                      <Layers3 size={18} />
+                    </div>
+
+                    {/* INFO */}
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="truncate font-bold text-gray-900">
+                          {service.title}
+                        </h3>
+
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                            service.published
+                              ? "bg-green-50 text-[#1F3C88]"
+                              : "bg-gray-100 text-gray-500"
+                          }`}
+                        >
+                          {service.published ? "Published" : "Hidden"}
+                        </span>
                       </div>
 
-                      {/* INFO */}
+                      <p className="mt-1 text-xs text-gray-400">
+                        {groupLabel(service.group)} · {service.type}
+                      </p>
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="truncate font-bold text-gray-900">
-                            {
-                              service.title
-                            }
-                          </h3>
-
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              service.published
-                                ? "bg-green-50 text-green-700"
-                                : "bg-gray-100 text-gray-500"
-                            }`}
-                          >
-                            {service.published
-                              ? "Published"
-                              : "Hidden"}
-                          </span>
-                        </div>
-
-                        <p className="mt-1 text-xs text-gray-400">
-                          {groupLabel(
-                            service.group
-                          )}{" "}
-                          ·{" "}
-                          {
-                            service.type
-                          }
+                      {service.subtitle && (
+                        <p className="mt-1 line-clamp-1 text-sm text-gray-500">
+                          {service.subtitle}
                         </p>
+                      )}
+                    </div>
 
-                        
+                    {/* ACTIONS */}
 
-                        {service.subtitle && (
-                          <p className="mt-1 line-clamp-1 text-sm text-gray-500">
-                            {
-                              service.subtitle
-                            }
-                          </p>
-                        )}
-                      </div>
-
-                      {/* ACTIONS */}
-
-                      <div className="flex shrink-0 flex-wrap gap-2">
-
-                        {service.published &&
-                          viewPath && (
-                            <Link
-                              href={
-                                viewPath
-                              }
-                              target="_blank"
-                              className="rounded-xl border border-green-200 bg-white px-3 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-50"
-                            >
-                              View
-                            </Link>
-                          )}
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            editService(
-                              service
-                            )
-                          }
-                          className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      {service.published && viewPath && (
+                        <Link
+                          href={viewPath}
+                          target="_blank"
+                          className="rounded-xl border border-green-200 bg-white px-3 py-2 text-sm font-semibold text-[#1F3C88] transition hover:bg-green-50"
                         >
-                          Edit
-                        </button>
+                          View
+                        </Link>
+                      )}
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setDeleteId(
-                              service._id
-                            )
-                          }
-                          className="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </article>
-                  );
-                }
-              )}
+                      <button
+                        type="button"
+                        onClick={() => editService(service)}
+                        className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+                      >
+                        Edit
+                      </button>
 
-              {visibleServices.length ===
-                0 && (
+                      <button
+                        type="button"
+                        onClick={() => setDeleteId(service._id)}
+                        className="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+
+              {visibleServices.length === 0 && (
                 <div className="p-10 text-center text-sm text-gray-400">
-                  No services in this
-                  category.
+                  No services in this category.
                 </div>
               )}
             </div>
@@ -1491,24 +965,12 @@ export default function AdminServicesPage() {
         {/* DELETE MODAL */}
 
         <ConfirmModal
-          open={
-            Boolean(
-              deleteId
-            )
-          }
+          open={Boolean(deleteId)}
           title="Delete this service?"
           description="This service will be permanently removed from the website."
-          loading={
-            deleting
-          }
-          onCancel={() =>
-            setDeleteId(
-              null
-            )
-          }
-          onConfirm={
-            deleteService
-          }
+          loading={deleting}
+          onCancel={() => setDeleteId(null)}
+          onConfirm={deleteService}
         />
       </div>
     </main>
@@ -1522,8 +984,7 @@ function Filter({
 }: {
   active: boolean;
   onClick: () => void;
-  children:
-    React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <button
@@ -1531,7 +992,7 @@ function Filter({
       onClick={onClick}
       className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
         active
-          ? "bg-green-700 text-white"
+          ? "bg-[#1F3C88] text-white"
           : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
       }`}
     >

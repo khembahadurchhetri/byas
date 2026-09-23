@@ -1,12 +1,7 @@
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 
-import {
-  FileCheck2,
-  HandCoins,
-  PiggyBank,
-  Smartphone,
-} from "lucide-react";
+import { FileCheck2, HandCoins, PiggyBank, Smartphone } from "lucide-react";
 
 const services = [
   {
@@ -50,36 +45,29 @@ export default function ServicesPage() {
       <section className="bg-[#f7f9f7] py-10 md:py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {services.map(
-              ({
-                title,
-                description,
-                href,
-                icon: Icon,
-              }) => (
-                <Link
-                  key={title}
-                  href={href}
-                  className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-700 transition group-hover:bg-green-700 group-hover:text-white">
-                    <Icon size={22} />
-                  </div>
+            {services.map(({ title, description, href, icon: Icon }) => (
+              <Link
+                key={title}
+                href={href}
+                className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-green-200 hover:shadow-md"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-[#1F3C88] transition group-hover:bg-[#1F3C88] group-hover:text-white">
+                  <Icon size={22} />
+                </div>
 
-                  <h2 className="mt-5 text-lg font-bold text-gray-900 group-hover:text-green-700">
-                    {title}
-                  </h2>
+                <h2 className="mt-5 text-lg font-bold text-gray-900 group-hover:text-[#1F3C88]">
+                  {title}
+                </h2>
 
-                  <p className="mt-3 text-sm leading-6 text-gray-500">
-                    {description}
-                  </p>
+                <p className="mt-3 text-sm leading-6 text-gray-500">
+                  {description}
+                </p>
 
-                  <span className="mt-5 inline-block text-sm font-bold text-green-700">
-                    Explore →
-                  </span>
-                </Link>
-              )
-            )}
+                <span className="mt-5 inline-block text-sm font-bold text-[#1F3C88]">
+                  Explore →
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

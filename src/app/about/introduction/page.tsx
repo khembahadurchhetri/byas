@@ -9,10 +9,11 @@ export default function IntroductionPage() {
           </span>
 
           <h1 className="mt-4 text-3xl font-bold text-gray-800 sm:text-4xl">
-            संस्थाको पृष्ठभूमि (परीचय)
+           
+Welcome to Byas Saving & Credit Cooperative Ltd.
           </h1>
 
-          <div className="mx-auto mt-5 h-1 w-16 rounded-full bg-green-700" />
+          <div className="mx-auto mt-5 h-1 w-16 rounded-full bg-[#1F3C88]" />
         </div>
       </section>
 
@@ -22,70 +23,20 @@ export default function IntroductionPage() {
           <article className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8 lg:p-10">
             <div className="space-y-6 text-[15px] leading-8 text-gray-700 sm:text-base sm:leading-9">
               <p>
-                महिला वचत तथा ऋण सहकारी संस्था लि. प्रदेश नं. १
-                सुनसरी जिल्लाको इटहरीमा सहकारीताको माध्यमवाट खासगरी
-                महिला सशक्तिकरण गर्दै समुदायको आर्थिक, सामाजिक र
-                साँस्कृतिक रुपले जीवनस्तर बृद्धि गर्नका स्थापित सहकारी
-                संस्था हो । २०५५ आश्विन २२ गते वचत तथा ऋण सहकारीको
-                रुपमा स्थापना भएको संस्थाले स्थापनाको २० औं वर्षमा
-                आईपुग्दा ५ हजार सदस्यहरुलाई आवद्ध गर्न सफल भई प्रत्यक्ष
-                रुपमा सेवा प्रदान गर्दै आईरहेको छ । स्थापनाकालमा ७५
-                जना सदस्यको रु १ लाख शेयर पुँजीबाट स्थापना भएको संस्थाले
-                कम पूँजी तथा निम्न आय भएका श्रमिक, किसान, कालिगड, साना
-                व्यापारी, उद्यमी र सर्वसाधारणलाई सदस्यता प्रदान गरि
-                सदस्यको आर्थिक जिवनस्तर उकास्ने काम गरेको छ ।
+               After the People’s Movement of 2062/63 B.S. (2005/2006 A.D.), establishing cooperative organizations in Damauli became something of a trend. Certain individuals began operating cooperatives with the sole aim of making profit, disregarding the principles, laws, and regulations that govern cooperatives. Amidst this wave, the editorial team of Lokvani Weekly — Prem Prasad Paudel, Pradeep Raj Adhikari, Prakash Chandra Bhattarai, Tribhuwan Shrestha, and Dhanraj Nepali — initiated discussions on running a cooperative institution.
+
               </p>
 
               <p>
-                संस्थाले वचत तथा ऋण कारोवारका अलावा वातावरण सफा राख्न
-                नगर क्षेत्रभित्र ठाउँ ठाउँमा वृक्षारोपण तथा सरसफाई
-                सम्बन्धि जनचेतना जगाउन सरसफाई अभियान कार्यक्रम, प्रत्येक
-                बर्ष जेष्ठ नागरिक सम्मान तथा तिर्थाटन कार्यक्रम, रक्तदान
-                जिवनदान को मूल नारालाई आत्साथ गर्दै हरेक वर्ष रक्तदानको
-                कार्यक्रम संचालन गर्ने गरेको छ । त्यस्तै उच्च शिक्षा
-                उतिर्ण गरेका र सदस्यका छोरा छोरीहरुलाई पनि प्रत्येक बर्ष
-                ससम्मान प्रशंसापत्र तथा नगद पूरस्कार वितरण गर्दै आएको छ ।
-                चेलिबेटी बेचबिखन, वाल बिवाह, बहूबिवाह, मद्यपान धुमपान
-                एवँ लागूपदार्थ विरुद्ध अभियान, अन्तर स्कूल छात्राहरुका
-                बिच हाजिरी जवाफ प्रतियोगिता, अन्तर स्कूल चित्रकला
-                प्रतियोगिता, जिल्ला स्तरिय अन्तर सहकारी हाजिरी जवाफ
-                प्रतियोगिता, यूवाहरुलाई आधारभूत पत्रकारिता तालिम तथा यूवा
-                समितिको पहलमा मासिक रुपमा भित्ते पत्रिका प्रकासन, नागरिक
-                सचेतना सम्बन्धी विभिन्न कार्यक्रम, महिला स्वास्थ्य
-                सम्बन्धी शिविर, बिद्यार्थीहरुलाई निःशूल्क रुपमा स्वास्थ्य
-                परिक्षण तथा औषधी वितण लगायत बिबिध सामाजीक सामुदायिक
-                कार्यक्रमहरु गर्दै आएको छ ।
+               At the same time, prominent local traders and entrepreneurs such as Banshi Kumar Shrestha, Mangal Prasad Shrestha, Ranjan Lal Shrestha, and Dwarika Shrestha were also engaged in talks about starting a cooperative. Rather than establishing two similar types of cooperatives simultaneously, discussions were held between both groups to unify efforts and run a single cooperative organization in accordance with cooperative values, principles, and the prevailing laws and regulations. Consensus was eventually reached on this matter.
               </p>
 
               <p>
-                संस्थाले प्रतिस्पर्धात्मक रुपमा दक्ष कर्मचारीहरु नियुक्त
-                गरि आवश्यकता अनुसारका राष्ट्रिय तथा अन्र्तराष्ट्रिय
-                तालिमहरु प्रदान गर्दै आएको छ भने संचालक समिति, लेखा
-                सुपरिवेक्षण समिति र विभिन्न उप–समितिका पदाधिकारीहरुलाई
-                तालिमहरु उपलब्ध गराएको छ भने सदस्य लाई समेत तालिम तथा
-                शिक्षा दिदै आईरहेको संस्थाले क्रमबद्ध रुपमा प्रगति गर्दै
-                समाज, राष्ट्र तथा अन्तरष्ट्रिय स्तरमा आफ्नो ख्याति तथा
-                पहिचान वनाउन सफल भएको छ । बिभिन्न उत्कृष्ट राष्ट्रि तथा
-                अन्र्तराष्ट्रय पुरस्कारहरु हासिल गर्न सफल भएको संस्था
-                बिभिन्न छाता संगठनहरु जस्तै नेपाल बचत तथा ऋण केन्द्रिय
-                सहकारी संघ लि. काठमाण्डौ, राष्ट्रिय सहकारी संघ लि.
-                ललितपुर , राष्ट्रिय सहकारी बैंक लि. काठमाण्डौ, बचत तथा
-                ऋण सहकारी संघ लि. सुनसरी , जिल्ला संघ सुनसरी को सदस्य
-                समेत रहि निरन्तर सहकार्य गरिरहेको छ ।
+               An informal discussion held in the open grounds of Damauli during the sunny days of the month of Magh yielded meaningful conclusions. It was agreed that each member would contribute NPR 10,000 to register the cooperative. The name “Byas Savings and Credit Cooperative Society” was also unanimously agreed upon.
               </p>
 
               <p>
-                संस्थाको संस्थागत बिकासको लागि २०६० साल देखि नेफ्स्कून
-                द्धारा संचालीत संस्थागत बिकास कार्यक्रममा संलग्न पल्र्स
-                प्रणालीलाई पूर्ण रुपमा अनुसरण गर्दै संस्थागत नीति,
-                कार्यविधि, योजना र कार्ययोजनाहरु निर्माण गरि सोहि अनुसार
-                संस्था संचालन गरिएको छ । संस्थाले ०६०।०६१ साल देखि नै
-                रणनीतिक योजनाहरु तयार गरी कार्यान्वायन गर्दै आईरहेको र
-                आ.व. ०७५।७६ सम्मान ४ वटा रणनीतिक योजना पुरा गर्ने छ ।
-                एसियालि ऋण माहासंघको प्राबिधिक सहयोग र नेफ्स्कूनकाृे
-                प्रत्यक्ष निगरानीमा २०६८ साल देखि नै एक्सेस व्राण्डीङ
-                कार्यक्रममा संलग्न भई वि.सं. २०७३ साल देखि लगातार ब्रोन्ज
-                तहको एक्सेस ब्राण्ड समेत प्राप्त गर्न सफल भएको छ ।
+                Prior to officially starting operations, a preliminary assembly and cooperative orientation training were conducted at the office of the Lokvani Weekly. The assembly formed an 11-member ad hoc management committee under the chairmanship of Banshi Kumar Shrestha and an audit supervision committee led by Mangal Prasad Shrestha. Thus, the cooperative formally began its operations from Padmachowk, Ward No. 2, Byas Municipality, Damauli.
               </p>
             </div>
           </article>

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  FormEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import ConfirmModal from "@/components/ConfirmModal";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -22,9 +17,7 @@ interface NewsItem {
   createdAt: string;
 }
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const API_URL = `${BACKEND_URL}/api/news`;
 const ADMIN_API_URL = `${API_URL}/admin/all`;
@@ -47,11 +40,9 @@ export default function AdminNewsPage() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [published, setPublished] = useState(true);
-  const [editingId, setEditingId] =
-    useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [deleteId, setDeleteId] =
-    useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -60,8 +51,7 @@ export default function AdminNewsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const fileInputRef =
-    useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function loadNews() {
     try {
@@ -76,11 +66,7 @@ export default function AdminNewsPage() {
 
       setNews(await response.json());
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Could not load news."
-      );
+      setError(error instanceof Error ? error.message : "Could not load news.");
     } finally {
       setPageLoading(false);
     }
@@ -103,16 +89,13 @@ export default function AdminNewsPage() {
     }
   }
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
     setSuccess("");
 
-    const plainTitle =
-      htmlToText(titleHtml);
+    const plainTitle = htmlToText(titleHtml);
 
     if (!plainTitle) {
       setError("Article title is required.");
@@ -122,25 +105,13 @@ export default function AdminNewsPage() {
     const formData = new FormData();
 
     formData.append("title", plainTitle);
-    formData.append(
-      "titleHtml",
-      titleHtml
-    );
+    formData.append("titleHtml", titleHtml);
 
-    formData.append(
-      "summary",
-      summary.trim()
-    );
+    formData.append("summary", summary.trim());
 
-    formData.append(
-      "content",
-      content
-    );
+    formData.append("content", content);
 
-    formData.append(
-      "published",
-      String(published)
-    );
+    formData.append("published", String(published));
 
     if (image) {
       formData.append("image", image);
@@ -150,31 +121,21 @@ export default function AdminNewsPage() {
 
     try {
       const response = await fetch(
-        editingId
-          ? `${API_URL}/${editingId}`
-          : API_URL,
+        editingId ? `${API_URL}/${editingId}` : API_URL,
         {
-          method: editingId
-            ? "PATCH"
-            : "POST",
+          method: editingId ? "PATCH" : "POST",
           credentials: "include",
           body: formData,
-        }
+        },
       );
 
-      const data = await response
-        .json()
-        .catch(() => null);
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(
-          data?.message ||
-            "Could not save article."
-        );
+        throw new Error(data?.message || "Could not save article.");
       }
 
-      const editing =
-        Boolean(editingId);
+      const editing = Boolean(editingId);
 
       resetForm();
       await loadNews();
@@ -182,31 +143,24 @@ export default function AdminNewsPage() {
       setSuccess(
         editing
           ? "Article updated successfully."
-          : "Article created successfully."
+          : "Article created successfully.",
       );
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Could not save article."
+        error instanceof Error ? error.message : "Could not save article.",
       );
     } finally {
       setLoading(false);
     }
   }
 
-  function startEditing(
-    item: NewsItem
-  ) {
+  function startEditing(item: NewsItem) {
     setError("");
     setSuccess("");
 
     setEditingId(item._id);
 
-    setTitleHtml(
-      item.titleHtml ||
-        `<p>${item.title}</p>`
-    );
+    setTitleHtml(item.titleHtml || `<p>${item.title}</p>`);
 
     setSummary(item.summary || "");
     setContent(item.content || "");
@@ -229,18 +183,13 @@ export default function AdminNewsPage() {
     setDeleting(true);
 
     try {
-      const response = await fetch(
-        `${API_URL}/${deleteId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
+      const response = await fetch(`${API_URL}/${deleteId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       if (!response.ok) {
-        throw new Error(
-          "Could not delete article."
-        );
+        throw new Error("Could not delete article.");
       }
 
       if (editingId === deleteId) {
@@ -250,14 +199,10 @@ export default function AdminNewsPage() {
       setDeleteId(null);
       await loadNews();
 
-      setSuccess(
-        "Article deleted successfully."
-      );
+      setSuccess("Article deleted successfully.");
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Could not delete article."
+        error instanceof Error ? error.message : "Could not delete article.",
       );
     } finally {
       setDeleting(false);
@@ -269,8 +214,8 @@ export default function AdminNewsPage() {
       <div className="mx-auto max-w-7xl">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-green-700">
-              Mahila SACCOS CMS
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1F3C88]">
+              Credits and Savings Vyas CMS
             </p>
 
             <h1 className="mt-1 text-3xl font-bold text-gray-950">
@@ -278,8 +223,7 @@ export default function AdminNewsPage() {
             </h1>
 
             <p className="mt-2 text-sm text-gray-500">
-              Create formatted news,
-              announcements and updates.
+              Create formatted news, announcements and updates.
             </p>
           </div>
 
@@ -295,14 +239,10 @@ export default function AdminNewsPage() {
           <div className="flex items-center justify-between border-b bg-gray-50 px-6 py-4">
             <div>
               <h2 className="font-bold text-gray-900">
-                {editingId
-                  ? "Edit Article"
-                  : "Create Article"}
+                {editingId ? "Edit Article" : "Create Article"}
               </h2>
 
-              <p className="mt-1 text-xs text-gray-400">
-                Images are optional.
-              </p>
+              <p className="mt-1 text-xs text-gray-400">Images are optional.</p>
             </div>
 
             {editingId && (
@@ -325,9 +265,7 @@ export default function AdminNewsPage() {
                   </label>
 
                   <p className="mt-1 text-xs text-gray-400">
-                    You can style the
-                    title with headings,
-                    color, alignment,
+                    You can style the title with headings, color, alignment,
                     bold and underline.
                   </p>
                 </div>
@@ -335,9 +273,7 @@ export default function AdminNewsPage() {
                 <RichTextEditor
                   variant="title"
                   value={titleHtml}
-                  onChange={
-                    setTitleHtml
-                  }
+                  onChange={setTitleHtml}
                 />
               </div>
 
@@ -349,11 +285,7 @@ export default function AdminNewsPage() {
                 <textarea
                   rows={3}
                   value={summary}
-                  onChange={(e) =>
-                    setSummary(
-                      e.target.value
-                    )
-                  }
+                  onChange={(e) => setSummary(e.target.value)}
                   placeholder="A short introduction shown on news cards and below the title."
                   className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-green-500 focus:bg-white"
                 />
@@ -364,12 +296,7 @@ export default function AdminNewsPage() {
                   Full Content
                 </label>
 
-                <RichTextEditor
-                  value={content}
-                  onChange={
-                    setContent
-                  }
-                />
+                <RichTextEditor value={content} onChange={setContent} />
               </div>
             </div>
 
@@ -380,27 +307,20 @@ export default function AdminNewsPage() {
                 </h3>
 
                 <p className="mt-1 text-xs leading-5 text-gray-400">
-                  Optional. Text-only
-                  news is fully supported.
+                  Optional. Text-only news is fully supported.
                 </p>
 
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept=".jpg,.jpeg,.png,.webp"
-                  onChange={(e) =>
-                    setImage(
-                      e.target.files?.[0] ||
-                        null
-                    )
-                  }
-                  className="mt-4 w-full text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-green-700 file:px-3 file:py-2 file:text-white"
+                  onChange={(e) => setImage(e.target.files?.[0] || null)}
+                  className="mt-4 w-full text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-[#1F3C88] file:px-3 file:py-2 file:text-white"
                 />
 
                 {editingId && (
                   <p className="mt-2 text-xs text-gray-400">
-                    Leave empty to keep
-                    the current image.
+                    Leave empty to keep the current image.
                   </p>
                 )}
               </div>
@@ -408,33 +328,21 @@ export default function AdminNewsPage() {
               <div className="rounded-2xl border p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold">
-                      Published
-                    </p>
+                    <p className="text-sm font-bold">Published</p>
 
-                    <p className="mt-1 text-xs text-gray-400">
-                      Show publicly.
-                    </p>
+                    <p className="mt-1 text-xs text-gray-400">Show publicly.</p>
                   </div>
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setPublished(
-                        !published
-                      )
-                    }
+                    onClick={() => setPublished(!published)}
                     className={`relative h-7 w-12 rounded-full ${
-                      published
-                        ? "bg-green-700"
-                        : "bg-gray-300"
+                      published ? "bg-[#1F3C88]" : "bg-gray-300"
                     }`}
                   >
                     <span
                       className={`absolute top-1 h-5 w-5 rounded-full bg-white transition ${
-                        published
-                          ? "left-6"
-                          : "left-1"
+                        published ? "left-6" : "left-1"
                       }`}
                     />
                   </button>
@@ -444,7 +352,7 @@ export default function AdminNewsPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-green-700 px-5 py-3 font-bold text-white hover:bg-green-800 disabled:opacity-50"
+                className="w-full rounded-xl bg-[#1F3C88] px-5 py-3 font-bold text-white hover:bg-[#162E6A] disabled:opacity-50"
               >
                 {loading
                   ? "Saving..."
@@ -466,7 +374,7 @@ export default function AdminNewsPage() {
               )}
 
               {success && (
-                <div className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700">
+                <div className="rounded-xl bg-green-50 px-4 py-3 text-sm text-[#1F3C88]">
                   {success}
                 </div>
               )}
@@ -475,13 +383,10 @@ export default function AdminNewsPage() {
         </form>
 
         <section className="mt-8">
-          <h2 className="text-xl font-bold text-gray-900">
-            Articles
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900">Articles</h2>
 
           <p className="mt-1 text-sm text-gray-500">
-            Manage all published and
-            hidden news.
+            Manage all published and hidden news.
           </p>
 
           {pageLoading ? (
@@ -490,87 +395,70 @@ export default function AdminNewsPage() {
             </div>
           ) : (
             <div className="mt-4 overflow-hidden rounded-2xl border bg-white">
-              {news.map(
-                (item, index) => (
-                  <article
-                    key={item._id}
-                    className={`flex flex-col gap-4 p-4 sm:flex-row sm:items-center ${
-                      index !==
-                      news.length - 1
-                        ? "border-b"
-                        : ""
-                    }`}
-                  >
-                    {item.imageUrl && (
-                      <img
-                        src={`${BACKEND_URL}${item.imageUrl}`}
-                        alt={item.title}
-                        className="h-20 w-full rounded-xl object-cover sm:w-28"
-                      />
-                    )}
+              {news.map((item, index) => (
+                <article
+                  key={item._id}
+                  className={`flex flex-col gap-4 p-4 sm:flex-row sm:items-center ${
+                    index !== news.length - 1 ? "border-b" : ""
+                  }`}
+                >
+                  {item.imageUrl && (
+                    <img
+                      src={`${BACKEND_URL}${item.imageUrl}`}
+                      alt={item.title}
+                      className="h-20 w-full rounded-xl object-cover sm:w-28"
+                    />
+                  )}
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                            item.published
-                              ? "bg-green-50 text-green-700"
-                              : "bg-gray-100 text-gray-500"
-                          }`}
-                        >
-                          {item.published
-                            ? "Published"
-                            : "Hidden"}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
+                          item.published
+                            ? "bg-green-50 text-[#1F3C88]"
+                            : "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        {item.published ? "Published" : "Hidden"}
+                      </span>
+
+                      {item.createdAt && (
+                        <span className="text-xs text-gray-400">
+                          {new Date(item.createdAt).toLocaleDateString()}
                         </span>
-
-                        {item.createdAt && (
-                          <span className="text-xs text-gray-400">
-                            {new Date(
-                              item.createdAt
-                            ).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="mt-2 truncate font-bold text-gray-900">
-                        {item.title}
-                      </h3>
-
-                      {item.summary && (
-                        <p className="mt-1 line-clamp-1 text-sm text-gray-500">
-                          {item.summary}
-                        </p>
                       )}
                     </div>
 
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          startEditing(
-                            item
-                          )
-                        }
-                        className="rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-blue-50"
-                      >
-                        Edit
-                      </button>
+                    <h3 className="mt-2 truncate font-bold text-gray-900">
+                      {item.title}
+                    </h3>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setDeleteId(
-                            item._id
-                          )
-                        }
-                        className="rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </article>
-                )
-              )}
+                    {item.summary && (
+                      <p className="mt-1 line-clamp-1 text-sm text-gray-500">
+                        {item.summary}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => startEditing(item)}
+                      className="rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-blue-50"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setDeleteId(item._id)}
+                      className="rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           )}
         </section>
@@ -580,9 +468,7 @@ export default function AdminNewsPage() {
           title="Delete this news article?"
           description="This article will be permanently removed."
           loading={deleting}
-          onCancel={() =>
-            setDeleteId(null)
-          }
+          onCancel={() => setDeleteId(null)}
           onConfirm={deleteNews}
         />
       </div>

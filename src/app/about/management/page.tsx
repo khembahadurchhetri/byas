@@ -5,7 +5,9 @@ export default function ManagementPage() {
     <TeamPage
       group="management"
       title="Management Team"
-      subtitle="Meet the Management Team of Mahila Saving and Credit Cooperative Society Ltd."
+      subtitle="Meet the Management Team of Credits and Savings
+Vyas
+Saving and Credit Cooperative Society Ltd."
     />
   );
 }

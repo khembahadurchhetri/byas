@@ -5,7 +5,9 @@ export default function AuditCommitteePage() {
     <TeamPage
       group="audit"
       title="Audit Committee"
-      subtitle="Audit Committee of Mahila Saving and Credit Cooperative Society Ltd."
+      subtitle="Audit Committee of Credits and Savings
+Vyas
+Saving and Credit Cooperative Society Ltd."
     />
   );
 }

@@ -1,63 +1,268 @@
+"use client";
+
+import {
+  X,
+  ZoomIn,
+} from "lucide-react";
+
+import {
+  useEffect,
+  useState,
+} from "react";
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000";
+
 interface GalleryItem {
   _id: string;
   title: string;
   imageUrl: string;
 }
 
-async function getGallery(): Promise<GalleryItem[]> {
-  const response = await fetch(
-    "http://localhost:5000/api/gallery",
-    {
-      cache: "no-store",
-    }
+export default function GalleryPage() {
+  const [
+    images,
+    setImages,
+  ] = useState<GalleryItem[]>([]);
+
+  const [
+    selectedImage,
+    setSelectedImage,
+  ] = useState<GalleryItem | null>(
+    null
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to load gallery");
-  }
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  return response.json();
-}
+  useEffect(() => {
+    async function loadGallery() {
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/api/gallery`,
+            {
+              cache: "no-store",
+            }
+          );
 
-export default async function GalleryPage() {
-  const images = await getGallery();
+        if (!response.ok) {
+          throw new Error(
+            "Failed to load gallery"
+          );
+        }
+
+        const data =
+          await response.json();
+
+        setImages(
+          Array.isArray(data)
+            ? data
+            : []
+        );
+      } catch (
+        error
+      ) {
+        console.error(
+          "Failed to load gallery:",
+          error
+        );
+
+        setImages([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadGallery();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedImage) {
+      return;
+    }
+
+    function handleKeyDown(
+      event: KeyboardEvent
+    ) {
+      if (
+        event.key ===
+        "Escape"
+      ) {
+        setSelectedImage(
+          null
+        );
+      }
+    }
+
+    document.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
+
+    document.body.style.overflow =
+      "hidden";
+
+    return () => {
+      document.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
+
+      document.body.style.overflow =
+        "";
+    };
+  }, [selectedImage]);
 
   return (
-    <main className="min-h-screen bg-gray-100 py-14">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <>
+      <main className="min-h-screen bg-[#f7f9fc] py-10 sm:py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          {/* HEADER */}
 
-        {images.length === 0 ? (
-          <p className="py-20 text-center text-gray-500">
-            No gallery images available.
-          </p>
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mb-8">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1F3C88]">
+              Byas SACCOS
+            </p>
 
-            {images.map((item) => (
-              <div
-                key={item._id}
-                className="overflow-hidden bg-white shadow-sm"
-              >
-                <img
-                  src={`http://localhost:5000${item.imageUrl}`}
-                  alt={item.title || "Mahila SACCOS gallery"}
-                  className="h-auto w-full object-cover"
-                />
+            <h1 className="mt-2 text-3xl font-bold text-gray-950 sm:text-4xl">
+              Gallery
+            </h1>
 
-                {item.title && (
-                  <div className="p-4">
-                    <p className="font-medium text-gray-700">
-                      {item.title}
-                    </p>
-                  </div>
+            <p className="mt-2 text-sm text-gray-500">
+              Moments and activities
+              from Byas Saving &
+              Credit Co-Operative
+              Ltd.
+            </p>
+          </div>
+
+          {/* LOADING */}
+
+          {loading && (
+            <div className="py-24 text-center text-sm text-gray-400">
+              Loading gallery...
+            </div>
+          )}
+
+          {/* EMPTY */}
+
+          {!loading &&
+            images.length ===
+              0 && (
+              <div className="rounded-2xl border border-gray-200 bg-white py-20 text-center shadow-sm">
+                <p className="text-sm text-gray-500">
+                  No gallery
+                  images available.
+                </p>
+              </div>
+            )}
+
+          {/* GALLERY */}
+
+          {!loading &&
+            images.length >
+              0 && (
+              <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
+                {images.map(
+                  (
+                    item
+                  ) => (
+                    <button
+                      key={
+                        item._id
+                      }
+                      type="button"
+                      onClick={() =>
+                        setSelectedImage(
+                          item
+                        )
+                      }
+                      className="group relative mb-4 block w-full break-inside-avoid overflow-hidden rounded-xl bg-white text-left shadow-sm"
+                    >
+                      <img
+                        src={`${API_URL}${item.imageUrl}`}
+                        alt={
+                          item.title ||
+                          "Byas SACCOS gallery"
+                        }
+                        loading="lazy"
+                        className="h-auto w-full transition duration-300 group-hover:scale-[1.02]"
+                      />
+
+                      {/* HOVER OVERLAY */}
+
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition duration-300 group-hover:bg-black/20 group-hover:opacity-100">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[#1F3C88] shadow">
+                          <ZoomIn
+                            size={
+                              20
+                            }
+                          />
+                        </div>
+                      </div>
+                    </button>
+                  )
                 )}
               </div>
-            ))}
+            )}
+        </div>
+      </main>
 
+      {/* LIGHTBOX */}
+
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 sm:p-8"
+          onClick={() =>
+            setSelectedImage(
+              null
+            )
+          }
+        >
+          <button
+            type="button"
+            onClick={() =>
+              setSelectedImage(
+                null
+              )
+            }
+            aria-label="Close image"
+            className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white text-gray-900 shadow-lg transition hover:bg-gray-100 sm:right-7 sm:top-7"
+          >
+            <X size={22} />
+          </button>
+
+          <div
+            className="flex max-h-full max-w-6xl flex-col items-center"
+            onClick={(
+              event
+            ) =>
+              event.stopPropagation()
+            }
+          >
+            <img
+              src={`${API_URL}${selectedImage.imageUrl}`}
+              alt={
+                selectedImage.title ||
+                "Byas SACCOS gallery"
+              }
+              className="max-h-[82vh] max-w-full rounded-lg object-contain shadow-2xl"
+            />
+
+            {selectedImage.title?.trim() && (
+              <p className="mt-4 max-w-3xl text-center text-sm font-medium text-white sm:text-base">
+                {
+                  selectedImage.title
+                }
+              </p>
+            )}
           </div>
-        )}
-
-      </div>
-    </main>
+        </div>
+      )}
+    </>
   );
 }

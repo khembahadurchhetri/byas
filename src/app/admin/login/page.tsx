@@ -1,90 +1,52 @@
 "use client";
 
-import {
-  FormEvent,
-  useState,
-} from "react";
+import { FormEvent, useState } from "react";
 
-import {
-  useRouter,
-} from "next/navigation";
+import { useRouter } from "next/navigation";
 
-const API_URL =
-  "http://localhost:5000/api/auth";
+const API_URL = "http://localhost:5000/api/auth";
 
 export default function AdminLoginPage() {
-  const router =
-    useRouter();
+  const router = useRouter();
 
-  const [email, setEmail] =
-    useState("");
+  const [email, setEmail] = useState("");
 
-  const [
-    password,
-    setPassword,
-  ] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
     setLoading(true);
 
     try {
-      const response =
-        await fetch(
-          `${API_URL}/login`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            credentials:
-              "include",
-            body: JSON.stringify({
-              email:
-                email.trim(),
-              password,
-            }),
-          }
-        );
+      const response = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
 
-      const data =
-        await response
-          .json()
-          .catch(
-            () => null
-          );
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(
-          data?.message ||
-            "Login failed."
-        );
+        throw new Error(data?.message || "Login failed.");
       }
 
-      router.push(
-        "/admin"
-      );
+      router.push("/admin");
 
       router.refresh();
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Login failed."
-      );
+      setError(error instanceof Error ? error.message : "Login failed.");
     } finally {
       setLoading(false);
     }
@@ -94,26 +56,18 @@ export default function AdminLoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-10">
       <div className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-sm sm:p-8">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.15em] text-green-700">
-            Mahila SACCOS
+          <p className="text-sm font-semibold uppercase tracking-[0.15em] text-[#1F3C88]">
+            Vyas Credits and Savings
           </p>
 
-          <h1 className="mt-2 text-3xl font-bold text-gray-900">
-            Admin Login
-          </h1>
+          <h1 className="mt-2 text-3xl font-bold text-gray-900">Admin Login</h1>
 
           <p className="mt-2 text-sm text-gray-500">
-            Sign in to manage
-            website content.
+            Sign in to manage website content.
           </p>
         </div>
 
-        <form
-          onSubmit={
-            handleSubmit
-          }
-          className="mt-8 space-y-5"
-        >
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">
               Email
@@ -123,13 +77,10 @@ export default function AdminLoginPage() {
               type="email"
               required
               value={email}
-              onChange={(e) =>
-                setEmail(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              className="w-full rounded-xl border px-4 py-3 outline-none focus:border-green-600"
+              className="w-full rounded-xl border px-4 py-3 outline-none focus:→
+border-[#1F3C88]"
               placeholder="admin@example.com"
             />
           </div>
@@ -142,16 +93,11 @@ export default function AdminLoginPage() {
             <input
               type="password"
               required
-              value={
-                password
-              }
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
-              className="w-full rounded-xl border px-4 py-3 outline-none focus:border-green-600"
+              className="w-full rounded-xl border px-4 py-3 outline-none focus:→
+border-[#1F3C88]"
               placeholder="Enter password"
             />
           </div>
@@ -164,14 +110,10 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            disabled={
-              loading
-            }
-            className="w-full rounded-xl bg-green-700 px-5 py-3 font-semibold text-white transition hover:bg-green-800 disabled:opacity-50"
+            disabled={loading}
+            className="w-full rounded-xl bg-[#1F3C88] px-5 py-3 font-semibold text-white transition hover:bg-[#162E6A] disabled:opacity-50"
           >
-            {loading
-              ? "Signing in..."
-              : "Login"}
+            {loading ? "Signing in..." : "Login"}
           </button>
         </form>
       </div>

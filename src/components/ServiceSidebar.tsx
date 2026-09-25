@@ -22,7 +22,7 @@ export default function ServiceSidebar({
     <aside className="lg:sticky lg:top-28 lg:self-start">
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b bg-[#1F3C88] px-5 py-4">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-green-100">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-100">
             Services
           </p>
 
@@ -39,8 +39,8 @@ export default function ServiceSidebar({
                 href={`/services/${category}/${service.slug}`}
                 className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm transition ${
                   active
-                    ? "bg-green-50 font-bold text-[#1F3C88]"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-[#1F3C88]"
+                    ? "bg-[#EEF4FF] font-bold text-[#1F3C88]"
+                    : "text-gray-600 hover:bg-[#EEF4FF] hover:text-[#1F3C88]"
                 }`}
               >
                 <span>{service.title}</span>

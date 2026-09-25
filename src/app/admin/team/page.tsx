@@ -113,12 +113,12 @@ export default function AdminTeamPage() {
     setSuccess("");
 
     if (!name.trim()) {
-      setError("Name / नाम is required.");
+      setError("Name is required.");
       return;
     }
 
     if (!position.trim()) {
-      setError("Position / पद is required.");
+      setError("Position is required.");
       return;
     }
 
@@ -259,14 +259,14 @@ export default function AdminTeamPage() {
                 htmlFor="member-name"
                 className="mb-2 block text-sm font-medium text-gray-700"
               >
-                Name / नाम
+                Name
               </label>
 
               <input
                 id="member-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Name / नाम"
+                placeholder="Name"
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:→
 border-[#1F3C88]"
               />
@@ -278,14 +278,14 @@ border-[#1F3C88]"
                 htmlFor="member-position"
                 className="mb-2 block text-sm font-medium text-gray-700"
               >
-                Position / पद
+                Position
               </label>
 
               <input
                 id="member-position"
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
-                placeholder="Position / पद"
+                placeholder="Position"
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:→
 border-[#1F3C88]"
               />

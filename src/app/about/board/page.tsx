@@ -5,9 +5,8 @@ export default function BoardPage() {
     <TeamPage
       group="board"
       title="Board of Directors"
-      subtitle="Meet the Board of Directors of Credits and Savings
-Vyas
-Saving and Credit Cooperative Society Ltd."
+      subtitle="Meet the Board of Directors of 
+Vyas Saving and Credit Cooperative Society Ltd."
     />
   );
 }

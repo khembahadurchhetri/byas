@@ -26,7 +26,7 @@ export default function AboutSection() {
 
             <Link
               href="/about"
-              className="mt-6 inline-block rounded bg-green-600 px-4 py-2 text-xs font-medium text-white transition hover:bg-[#1F3C88]"
+              className="mt-6 inline-block rounded bg-[#1F3C88] px-4 py-2 text-xs font-medium text-white transition hover:bg-green-600"
             >
               Read More
             </Link>

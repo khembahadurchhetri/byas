@@ -113,7 +113,7 @@ export default function AdminAchievementsPage() {
     setSuccess("");
 
     if (!title.trim()) {
-      setError("Title / शीर्षक is required.");
+      setError("Title is required.");
       return;
     }
 
@@ -252,13 +252,13 @@ export default function AdminAchievementsPage() {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm font-medium text-gray-700">
-                Title / शीर्षक
+                Title
               </label>
 
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Achievement title / उपलब्धिको शीर्षक"
+                placeholder="Achievement title "
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:→
 border-[#1F3C88]"
               />
@@ -266,14 +266,14 @@ border-[#1F3C88]"
 
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm font-medium text-gray-700">
-                Description / विवरण
+                Description
               </label>
 
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={5}
-                placeholder="Description / विवरण"
+                placeholder="Description"
                 className="w-full resize-y rounded-lg border border-gray-300 px-4 py-3 outline-none focus:→
 border-[#1F3C88]"
               />

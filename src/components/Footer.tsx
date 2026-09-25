@@ -202,6 +202,10 @@ export default function Footer() {
           <p>
             © 2026 Byas Saving & Credit Co-Operative Ltd.
           </p>
+           <p>
+           Vyas-3,Parasar Tole, Damauli, Tanahun, Gandaki Province, Nepal
+          </p>
+
 
           <p>
             Design & Developed by{" "}

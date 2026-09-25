@@ -66,17 +66,20 @@ const usefulLinks = [
 export default function Footer() {
   return (
     <footer className="bg-[#162E6A] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-
+      <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-9">
+        <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
           {/* BRAND */}
 
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-200">
-              Byas SACCOS
-            </p>
+            <div className="flex items-center gap-3">
+              <span className="h-[2px] w-8 bg-blue-300" />
 
-            <h2 className="mt-2 text-xl font-bold leading-7">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-200">
+                Byas SACCOS
+              </p>
+            </div>
+
+            <h2 className="mt-3 text-lg font-bold leading-7 sm:text-xl">
               Byas Saving & Credit
               Co-Operative Ltd.
             </h2>
@@ -87,10 +90,12 @@ export default function Footer() {
             </p>
           </div>
 
+          
+            <div className="grid grid-cols-2 gap-7 sm:col-span-2 lg:col-span-2 lg:grid-cols-2 lg:gap-16">
           {/* QUICK LINKS */}
 
           <div>
-            <h3 className="text-base font-bold">
+            <h3 className="text-sm font-bold sm:text-base">
               Quick Links
             </h3>
 
@@ -115,7 +120,7 @@ export default function Footer() {
           {/* USEFUL LINKS */}
 
           <div>
-            <h3 className="text-base font-bold">
+            <h3 className="text-sm font-bold sm:text-base">
               Useful Links
             </h3>
 
@@ -128,9 +133,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="group flex w-fit items-start gap-1.5 text-sm leading-5 text-blue-100/80 transition hover:text-white"
                 >
-                  <span>
-                    {item.name}
-                  </span>
+                  <span>{item.name}</span>
 
                   <ExternalLink
                     size={11}
@@ -140,27 +143,29 @@ export default function Footer() {
               ))}
             </div>
           </div>
+          </div>
 
-          {/* SOCIAL / APP */}
+
+          {/* CONNECT */}
 
           <div>
-            <h3 className="text-base font-bold">
+            <h3 className="text-sm font-bold sm:text-base">
               Connect
             </h3>
 
-            <div className="mt-3 space-y-3">
+            <div className="mt-3 space-y-2.5">
               <a
                 href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-4 py-3 transition hover:bg-white/15"
+                className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 transition hover:bg-white/15"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#1F3C88]">
-                  <Globe size={17} />
+                  <Globe size={16} />
                 </div>
 
                 <div>
-                  <p className="text-xs text-blue-200">
+                  <p className="text-[11px] text-blue-200">
                     Follow us on
                   </p>
 
@@ -174,14 +179,14 @@ export default function Footer() {
                 href={appUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-4 py-3 transition hover:bg-white/15"
+                className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 transition hover:bg-white/15"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#1F3C88]">
-                  <Smartphone size={17} />
+                  <Smartphone size={16} />
                 </div>
 
                 <div>
-                  <p className="text-xs text-blue-200">
+                  <p className="text-[11px] text-blue-200">
                     Mobile Banking
                   </p>
 
@@ -198,16 +203,17 @@ export default function Footer() {
       {/* COPYRIGHT */}
 
       <div className="border-t border-white/10 bg-[#10275E]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 text-center text-[11px] text-blue-100/70 sm:px-6 md:flex-row md:items-center md:justify-between md:text-left">
+        <div className="mx-auto grid max-w-7xl gap-1 px-4 py-3 text-center text-[11px] leading-5 text-blue-100/70 sm:px-6 md:grid-cols-3 md:items-center md:text-left">
           <p>
             © 2026 Byas Saving & Credit Co-Operative Ltd.
           </p>
-           <p>
-           Vyas-3,Parasar Tole, Damauli, Tanahun, Gandaki Province, Nepal
+
+          <p className="md:text-center">
+            Vyas-3, Parasar Tole, Damauli, Tanahun,
+            Gandaki Province, Nepal
           </p>
 
-
-          <p>
+          <p className="md:text-right">
             Design & Developed by{" "}
             <span className="font-semibold text-white">
               Lumino Technology Pvt. Ltd.

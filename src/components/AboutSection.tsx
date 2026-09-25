@@ -1,60 +1,43 @@
 import Link from "next/link";
 
+import {
+  ArrowRight,
+} from "lucide-react";
+
 export default function AboutSection() {
   return (
-    <section className="bg-gray-100 pb-14">
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[2fr_1fr]">
-        {/* LEFT ABOUT BOX */}
-        <div className="grid items-center gap-8 bg-white p-7 md:grid-cols-[1fr_1.1fr]">
-          {/* About text */}
-          <div>
-            <h2 className="text-3xl font-bold text-gray-700 underline">
+    <section className="bg-white py-10 sm:py-14">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="rounded-[26px] border border-gray-200 bg-[#f7f9fc] p-6 sm:p-8 lg:p-10">
+          <div className="flex items-center gap-3">
+            <span className="h-[2px] w-10 bg-[#1F3C88]" />
+
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#1F3C88]">
               About Us
-            </h2>
-
-            <p className="mt-6 text-sm leading-8 text-[#1F3C88]">
-              After the People’s Movement of 2062/63 B.S. (2005/2006 A.D.),
-              establishing cooperative organizations in Damauli became something
-              of a trend. Certain individuals began operating cooperatives with
-              the sole aim of making profit, disregarding the principles, laws,
-              and regulations that govern cooperatives. Amidst this wave, the
-              editorial team of Lokvani Weekly — Prem Prasad Paudel, Pradeep Raj
-              Adhikari, Prakash Chandra Bhattarai, Tribhuwan Shrestha, and
-              Dhanraj Nepali — initiated discussions on running a cooperative
-              institution.
             </p>
-
-            <Link
-              href="/about"
-              className="mt-6 inline-block rounded bg-[#1F3C88] px-4 py-2 text-xs font-medium text-white transition hover:bg-green-600"
-            >
-              Read More
-            </Link>
           </div>
 
-          {/* About photo */}
-          <div className="overflow-hidden">
-            <img
-              src="/images/about/about-us.jpg"
-              alt="Credits and Savings
-Vyas
-Credits and Savings
- members"
-              className="h-[260px] w-full object-cover"
+          <h2 className="mt-4 max-w-2xl text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
+            Growing Together Through Cooperative Values
+          </h2>
+
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-gray-600 sm:text-base">
+            Byas Saving & Credit Co-Operative Ltd.
+            is committed to responsible financial
+            services, member development and
+            building a stronger community.
+          </p>
+
+          <Link
+            href="/about/introduction"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#1F3C88] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#162E6A]"
+          >
+            Discover Our Story
+
+            <ArrowRight
+              size={16}
             />
-          </div>
-        </div>
-
-        {/* RIGHT ANNUAL IMAGE */}
-        <div className="flex items-center justify-center bg-white p-3">
-          <img
-            src="/images/about/aboutus-annual.jpg"
-            alt="Credits and Savings
-Vyas
-Credits and Savings
- annual information"
-            className="h-auto w-full object-contain"
-          />
+          </Link>
         </div>
       </div>
     </section>

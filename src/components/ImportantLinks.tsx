@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import {
+  ArrowUpRight,
   Calculator,
   CalendarDays,
   Newspaper,
@@ -9,22 +10,34 @@ import {
 
 const links = [
   {
-    title: "EMI Calculator",
+    title:
+      "EMI Calculator",
+    description:
+      "Estimate your loan installments.",
     icon: Calculator,
     href: "/services/emi-calculator",
   },
   {
-    title: "Date Converter",
+    title:
+      "Date Converter",
+    description:
+      "Convert dates quickly and easily.",
     icon: CalendarDays,
     href: "/services/emi-calculator#date-converter",
   },
-{
-  title: "Get Mobile App",
-  icon: Smartphone,
-  href: "https://play.google.com/store/apps/details?id=com.devanasoft.vyas",
-},
+  {
+    title:
+      "Get Mobile App",
+    description:
+      "Access Byas services on your phone.",
+    icon: Smartphone,
+    href: "https://play.google.com/store/apps/details?id=com.devanasoft.vyas",
+    external: true,
+  },
   {
     title: "News",
+    description:
+      "Read our latest announcements.",
     icon: Newspaper,
     href: "/news",
   },
@@ -32,37 +45,110 @@ const links = [
 
 export default function ImportantLinks() {
   return (
-    <section className="bg-gray-100 py-12 sm:py-16">
+    <section className="bg-white py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <h2 className="mb-8 text-2xl font-bold text-[#1F3C88] sm:mb-10 sm:text-3xl">
-          Important Links
-        </h2>
+        {/* HEADER */}
 
-        <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-4">
+        <div className="mb-8">
+          <div className="flex items-center gap-3">
+            <span className="h-[2px] w-10 bg-[#1F3C88]" />
+
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#1F3C88]">
+              Quick Access
+            </p>
+          </div>
+
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
+            Important Links
+          </h2>
+
+          <p className="mt-2 max-w-xl text-sm leading-7 text-gray-600">
+            Frequently used
+            services and useful
+            resources in one
+            place.
+          </p>
+        </div>
+
+        {/* LINKS */}
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {links.map(
             ({
               title,
+              description,
               icon: Icon,
               href,
-            }) => (
-              <Link
-                key={title}
-                href={href}
-                className="group flex min-h-[150px] flex-col items-center justify-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-md"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#EEF4FF] transition group-hover:bg-blue-100">
-                  <Icon
-                    size={28}
-                    strokeWidth={1.8}
-                    className="text-[#1F3C88]"
-                  />
-                </div>
+              external,
+            }) => {
+              const content = (
+                <>
+                  <div className="flex items-start justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EEF4FF] text-[#1F3C88] transition duration-300 group-hover:bg-[#1F3C88] group-hover:text-white">
+                      <Icon
+                        size={
+                          21
+                        }
+                      />
+                    </div>
 
-                <span className="text-sm font-semibold text-gray-700 transition group-hover:text-[#1F3C88]">
-                  {title}
-                </span>
-              </Link>
-            )
+                    <ArrowUpRight
+                      size={
+                        17
+                      }
+                      className="text-gray-300 transition duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-[#1F3C88]"
+                    />
+                  </div>
+
+                  <h3 className="mt-5 font-bold text-gray-900">
+                    {title}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-gray-500">
+                    {
+                      description
+                    }
+                  </p>
+                </>
+              );
+
+              const className =
+                "group rounded-2xl border border-gray-200 bg-[#F8FAFF] p-5 transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:bg-white hover:shadow-md";
+
+              if (external) {
+                return (
+                  <a
+                    key={
+                      title
+                    }
+                    href={
+                      href
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={
+                      className
+                    }
+                  >
+                    {
+                      content
+                    }
+                  </a>
+                );
+              }
+
+              return (
+                <Link
+                  key={title}
+                  href={href}
+                  className={
+                    className
+                  }
+                >
+                  {content}
+                </Link>
+              );
+            }
           )}
         </div>
       </div>

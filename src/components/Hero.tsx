@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 const slides = [
   "/images/hero/hero.jpeg",
@@ -10,40 +19,73 @@ const slides = [
 ];
 
 export default function Hero() {
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] =
+    useState(0);
 
-  const touchStartX = useRef<number | null>(null);
+  const touchStartX =
+    useRef<number | null>(null);
 
   function previousSlide() {
-    setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+    setCurrent(
+      (prev) =>
+        (prev -
+          1 +
+          slides.length) %
+        slides.length
+    );
   }
 
   function nextSlide() {
-    setCurrent((prev) => (prev + 1) % slides.length);
+    setCurrent(
+      (prev) =>
+        (prev + 1) %
+        slides.length
+    );
   }
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      nextSlide();
-    }, 5000);
+    const timer =
+      window.setInterval(
+        nextSlide,
+        5500
+      );
 
-    return () => window.clearInterval(timer);
+    return () =>
+      window.clearInterval(
+        timer
+      );
   }, []);
 
-  function handleTouchStart(event: React.TouchEvent) {
-    touchStartX.current = event.touches[0].clientX;
+  function handleTouchStart(
+    event: React.TouchEvent
+  ) {
+    touchStartX.current =
+      event.touches[0].clientX;
   }
 
-  function handleTouchEnd(event: React.TouchEvent) {
-    if (touchStartX.current === null) {
+  function handleTouchEnd(
+    event: React.TouchEvent
+  ) {
+    if (
+      touchStartX.current ===
+      null
+    ) {
       return;
     }
 
-    const endX = event.changedTouches[0].clientX;
+    const endX =
+      event.changedTouches[0]
+        .clientX;
 
-    const difference = touchStartX.current - endX;
+    const difference =
+      touchStartX.current -
+      endX;
 
-    if (Math.abs(difference) > 50) {
+    if (
+      Math.abs(
+        difference
+      ) > 50
+    ) {
       if (difference > 0) {
         nextSlide();
       } else {
@@ -51,70 +93,104 @@ export default function Hero() {
       }
     }
 
-    touchStartX.current = null;
+    touchStartX.current =
+      null;
   }
 
   return (
-    <section className="w-full bg-white">
+    <section className="relative bg-white">
       <div
-        className="relative h-[240px] w-full overflow-hidden sm:h-[330px] md:h-[430px] lg:h-[500px]"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        className="relative h-[235px] w-full overflow-hidden sm:h-[340px] md:h-[430px] lg:h-[500px]"
+        onTouchStart={
+          handleTouchStart
+        }
+        onTouchEnd={
+          handleTouchEnd
+        }
       >
-        {slides.map((image, index) => (
-          <img
-            key={image}
-            src={image}
-            alt={`Credits and Savings
-Vyas
-Credits and Savings
- slide ${index + 1}`}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-              index === current ? "opacity-100" : "opacity-0"
-            }`}
-          />
-        ))}
+        {slides.map(
+          (
+            image,
+            index
+          ) => (
+            <img
+              key={image}
+              src={image}
+              alt={`Byas Saving & Credit Co-Operative Ltd. slide ${
+                index + 1
+              }`}
+              className={`absolute inset-0 h-full w-full object-cover transition-all duration-[1400ms] ease-out ${
+                index ===
+                current
+                  ? "scale-100 opacity-100"
+                  : "scale-[1.04] opacity-0"
+              }`}
+            />
+          )
+        )}
 
-        {/* DARK OVERLAY */}
+        {/* OVERLAY */}
 
-        <div className="pointer-events-none absolute inset-0 bg-black/10" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
 
-        {/* LEFT */}
+        {/* PREVIOUS */}
 
         <button
           type="button"
           aria-label="Previous slide"
-          onClick={previousSlide}
-          className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-3xl text-white backdrop-blur-sm transition hover:bg-black/50 sm:left-5"
+          onClick={
+            previousSlide
+          }
+          className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-md transition hover:bg-black/45 sm:left-5 sm:h-11 sm:w-11"
         >
-          ‹
+          <ChevronLeft
+            size={21}
+          />
         </button>
 
-        {/* RIGHT */}
+        {/* NEXT */}
 
         <button
           type="button"
           aria-label="Next slide"
           onClick={nextSlide}
-          className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-3xl text-white backdrop-blur-sm transition hover:bg-black/50 sm:right-5"
+          className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-md transition hover:bg-black/45 sm:right-5 sm:h-11 sm:w-11"
         >
-          ›
+          <ChevronRight
+            size={21}
+          />
         </button>
 
         {/* DOTS */}
 
-        <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              aria-label={`Go to slide ${index + 1}`}
-              onClick={() => setCurrent(index)}
-              className={`h-2.5 w-2.5 rounded-full border border-white transition ${
-                index === current ? "bg-white" : "bg-white/20"
-              }`}
-            />
-          ))}
+        <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/20 px-3 py-2 backdrop-blur-md">
+          {slides.map(
+            (
+              _,
+              index
+            ) => (
+              <button
+                key={
+                  index
+                }
+                type="button"
+                aria-label={`Go to slide ${
+                  index + 1
+                }`}
+                onClick={() =>
+                  setCurrent(
+                    index
+                  )
+                }
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index ===
+                  current
+                    ? "w-6 bg-white"
+                    : "w-2 bg-white/50"
+                }`}
+              />
+            )
+          )}
         </div>
       </div>
     </section>

@@ -173,7 +173,7 @@ export default async function NewsPage() {
 
                         {index ===
                           0 && (
-                          <span className="rounded-full bg-[#EEF4FF] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#1F3C88]">
+                          <span className="rounded-full bg-[#1F3C88] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
                             Latest
                           </span>
                         )}

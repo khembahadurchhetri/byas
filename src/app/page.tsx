@@ -7,13 +7,13 @@ import ImportantLinks from "@/components/ImportantLinks";
 
 export default function Home() {
   return (
-    <>
+    <main className="overflow-hidden bg-[#f7f9fc]">
       <Hero />
-      <FeatureCards />
       <AboutSection />
       <Schemes />
+      <FeatureCards />
       <LatestUpdates />
       <ImportantLinks />
-    </>
+    </main>
   );
 }

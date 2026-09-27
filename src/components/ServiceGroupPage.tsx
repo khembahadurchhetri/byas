@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
-import { getAssetUrl } from "@/lib/api";
 
 type ServiceGroup =
   | "savings"

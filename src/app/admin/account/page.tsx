@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 
 import { Eye, EyeOff, KeyRound } from "lucide-react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { API_URL } from "@/lib/api";
 
 export default function AdminAccountPage() {
   const [currentPassword, setCurrentPassword] = useState("");

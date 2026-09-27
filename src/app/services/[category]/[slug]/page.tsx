@@ -5,9 +5,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import ServiceSidebar from "@/components/ServiceSidebar";
-import { getAssetUrl } from "@/lib/api";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { API_URL, getAssetUrl } from "@/lib/api";
 
 interface Section {
   heading: string;

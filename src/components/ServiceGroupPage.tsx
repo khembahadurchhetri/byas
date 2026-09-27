@@ -12,6 +12,8 @@ type ServiceGroup =
 
 type ServiceType = "content" | "image" | "external-link";
 
+import { API_URL, getAssetUrl } from "@/lib/api";
+
 interface Section {
   heading: string;
   content: string;
@@ -33,11 +35,9 @@ interface Service {
   published: boolean;
 }
 
-const BACKEND_URL = "http://localhost:5000";
-
 async function getServices(group: ServiceGroup): Promise<Service[]> {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/services?group=${group}`, {
+    const response = await fetch(`${API_URL}/api/services?group=${group}`, {
       cache: "no-store",
     });
 

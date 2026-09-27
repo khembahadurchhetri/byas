@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import ConfirmModal from "@/components/ConfirmModal";
+import { API_URL as BACKEND_URL } from "@/lib/api";
 
 import { Check, Mail, MailOpen, RefreshCw, Trash2 } from "lucide-react";
 
@@ -16,7 +17,7 @@ interface Message {
   createdAt: string;
 }
 
-const API_URL = "http://localhost:5000/api/messages";
+const API_URL = `${BACKEND_URL}/api/messages`;
 
 export default function AdminMessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);

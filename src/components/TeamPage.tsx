@@ -1,4 +1,4 @@
-import { getAssetUrl } from "@/lib/api";
+import { API_URL, getAssetUrl } from "@/lib/api";
 
 interface TeamMember {
   _id: string;
@@ -16,8 +16,6 @@ interface TeamPageProps {
   subtitle: string;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 export default async function TeamPage({
   group,
   title,
@@ -26,7 +24,7 @@ export default async function TeamPage({
   let members: TeamMember[] = [];
 
   try {
-    const response = await fetch(`${BACKEND_URL}/api/team?group=${group}`, {
+    const response = await fetch(`${API_URL}/api/team?group=${group}`, {
       cache: "no-store",
     });
 

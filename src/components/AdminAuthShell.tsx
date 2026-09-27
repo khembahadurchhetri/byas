@@ -1,39 +1,26 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
-import {
-  usePathname,
-  useRouter,
-} from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import AdminSidebar from "@/components/AdminSidebar";
+import { API_URL } from "@/lib/api";
 
-const AUTH_URL =
-  "http://localhost:5000/api/auth";
+const AUTH_URL = `${API_URL}/api/auth`;
 
 export default function AdminAuthShell({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname =
-    usePathname();
+  const pathname = usePathname();
 
-  const router =
-    useRouter();
+  const router = useRouter();
 
-  const [
-    checking,
-    setChecking,
-  ] = useState(true);
+  const [checking, setChecking] = useState(true);
 
-  const isLoginPage =
-    pathname ===
-    "/admin/login";
+  const isLoginPage = pathname === "/admin/login";
 
   useEffect(() => {
     if (isLoginPage) {
@@ -45,22 +32,14 @@ export default function AdminAuthShell({
 
     async function checkAdmin() {
       try {
-        const response =
-          await fetch(
-            `${AUTH_URL}/me`,
-            {
-              credentials:
-                "include",
-              cache:
-                "no-store",
-            }
-          );
+        const response = await fetch(`${AUTH_URL}/me`, {
+          credentials: "include",
+          cache: "no-store",
+        });
 
         if (!response.ok) {
           if (active) {
-            router.replace(
-              "/admin/login"
-            );
+            router.replace("/admin/login");
           }
 
           return;
@@ -71,9 +50,7 @@ export default function AdminAuthShell({
         }
       } catch {
         if (active) {
-          router.replace(
-            "/admin/login"
-          );
+          router.replace("/admin/login");
         }
       }
     }
@@ -83,10 +60,7 @@ export default function AdminAuthShell({
     return () => {
       active = false;
     };
-  }, [
-    isLoginPage,
-    router,
-  ]);
+  }, [isLoginPage, router]);
 
   if (isLoginPage) {
     return <>{children}</>;
@@ -98,10 +72,7 @@ export default function AdminAuthShell({
         <div className="text-center">
           <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-gray-200 border-t-green-700" />
 
-          <p className="mt-4 text-sm text-gray-500">
-            Checking admin
-            access...
-          </p>
+          <p className="mt-4 text-sm text-gray-500">Checking admin access...</p>
         </div>
       </div>
     );
@@ -112,9 +83,7 @@ export default function AdminAuthShell({
       <AdminSidebar />
 
       <div className="lg:pl-72">
-        <main className="min-h-screen">
-          {children}
-        </main>
+        <main className="min-h-screen">{children}</main>
       </div>
     </div>
   );

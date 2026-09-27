@@ -1,6 +1,6 @@
 import { CalendarDays, Download, FileText } from "lucide-react";
 
-import { getAssetUrl } from "@/lib/api";
+import { API_URL, getAssetUrl } from "@/lib/api";
 
 interface Report {
   _id: string;
@@ -10,10 +10,8 @@ interface Report {
   createdAt?: string;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 async function getReports(): Promise<Report[]> {
-  const response = await fetch(`${BACKEND_URL}/api/reports`, {
+  const response = await fetch(`${API_URL}/api/reports`, {
     cache: "no-store",
   });
 

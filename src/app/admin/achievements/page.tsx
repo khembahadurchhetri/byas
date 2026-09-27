@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-import { getAssetUrl } from "@/lib/api";
+import { API_URL as BACKEND_URL, getAssetUrl } from "@/lib/api";
 
 interface Achievement {
   _id: string;
@@ -13,9 +13,7 @@ interface Achievement {
   published: boolean;
 }
 
-const API_URL = "http://localhost:5000/api/achievements";
-
-const BACKEND_URL = "http://localhost:5000";
+const API_URL = `${BACKEND_URL}/api/achievements`;
 
 export default function AdminAchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getAssetUrl } from "@/lib/api";
+import { API_URL, getAssetUrl } from "@/lib/api";
 
 interface SuccessStory {
   _id: string;
@@ -12,12 +12,9 @@ interface SuccessStory {
 }
 
 async function getStory(id: string): Promise<SuccessStory | null> {
-  const response = await fetch(
-    `http://localhost:5000/api/success-stories/${id}`,
-    {
-      cache: "no-store",
-    },
-  );
+  const response = await fetch(`${API_URL}/api/success-stories/${id}`, {
+    cache: "no-store",
+  });
 
   if (response.status === 404) {
     return null;

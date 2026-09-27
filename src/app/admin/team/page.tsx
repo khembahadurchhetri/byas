@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-import { getAssetUrl } from "@/lib/api";
+import { API_URL as BACKEND_URL, getAssetUrl } from "@/lib/api";
 
 interface TeamMember {
   _id: string;
@@ -14,9 +14,7 @@ interface TeamMember {
   published: boolean;
 }
 
-const API_URL = "http://localhost:5000/api/team";
-
-const BACKEND_URL = "http://localhost:5000";
+const API_URL = `${BACKEND_URL}/api/team`;
 
 export default function AdminTeamPage() {
   const [members, setMembers] = useState<TeamMember[]>([]);

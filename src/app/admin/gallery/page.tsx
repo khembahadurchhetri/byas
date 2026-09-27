@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-import { getAssetUrl } from "@/lib/api";
+import { API_URL as BACKEND_URL, getAssetUrl } from "@/lib/api";
 
 interface GalleryItem {
   _id: string;
@@ -11,8 +11,7 @@ interface GalleryItem {
   published: boolean;
 }
 
-const API_URL = "http://localhost:5000/api/gallery";
-const BACKEND_URL = "http://localhost:5000";
+const API_URL = `${BACKEND_URL}/api/gallery`;
 
 export default function AdminGalleryPage() {
   const [images, setImages] = useState<GalleryItem[]>([]);

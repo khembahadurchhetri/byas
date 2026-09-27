@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-import { getAssetUrl } from "@/lib/api";
+import { API_URL as BACKEND_URL, getAssetUrl } from "@/lib/api";
 
 interface Report {
   _id: string;
@@ -12,8 +12,6 @@ interface Report {
   published: boolean;
   createdAt: string;
 }
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const API_URL = `${BACKEND_URL}/api/reports`;
 

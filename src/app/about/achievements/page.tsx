@@ -1,6 +1,6 @@
 import { Medal } from "lucide-react";
 
-import { getAssetUrl } from "@/lib/api";
+import { API_URL, getAssetUrl } from "@/lib/api";
 
 interface Achievement {
   _id: string;
@@ -11,11 +11,9 @@ interface Achievement {
   published: boolean;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 async function getAchievements(): Promise<Achievement[]> {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/achievements`, {
+    const response = await fetch(`${API_URL}/api/achievements`, {
       cache: "no-store",
     });
 

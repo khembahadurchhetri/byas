@@ -19,15 +19,9 @@ import {
   Clock3,
 } from "lucide-react";
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:5000";
+import { API_URL } from "@/lib/api";
 
 interface NewsItem {
   _id: string;
@@ -68,49 +62,33 @@ const emptyCounts: DashboardCounts = {
   services: 0,
 };
 
-async function fetchArray<T>(
-  endpoint: string
-): Promise<T[]> {
+async function fetchArray<T>(endpoint: string): Promise<T[]> {
   try {
-    const response = await fetch(
-      `${API_URL}${endpoint}`,
-      {
-        cache: "no-store",
-        credentials: "include",
-      }
-    );
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      cache: "no-store",
+      credentials: "include",
+    });
 
     if (!response.ok) {
       return [];
     }
 
-    const data =
-      await response.json();
+    const data = await response.json();
 
-    return Array.isArray(data)
-      ? data
-      : [];
+    return Array.isArray(data) ? data : [];
   } catch {
     return [];
   }
 }
 
 export default function AdminDashboardPage() {
-  const [counts, setCounts] =
-    useState<DashboardCounts>(
-      emptyCounts
-    );
+  const [counts, setCounts] = useState<DashboardCounts>(emptyCounts);
 
-  const [news, setNews] =
-    useState<NewsItem[]>([]);
+  const [news, setNews] = useState<NewsItem[]>([]);
 
-  const [
-    messages,
-    setMessages,
-  ] = useState<MessageItem[]>([]);
+  const [messages, setMessages] = useState<MessageItem[]>([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
   async function loadDashboard() {
     setLoading(true);
@@ -126,60 +104,36 @@ export default function AdminDashboardPage() {
         achievementsData,
         servicesData,
       ] = await Promise.all([
-        fetchArray<NewsItem>(
-          "/api/news/admin/all"
-        ),
+        fetchArray<NewsItem>("/api/news/admin/all"),
 
-        fetchArray(
-          "/api/reports"
-        ),
+        fetchArray("/api/reports"),
 
-        fetchArray(
-          "/api/gallery"
-        ),
+        fetchArray("/api/gallery"),
 
-        fetchArray(
-          "/api/success-stories"
-        ),
+        fetchArray("/api/success-stories"),
 
-        fetchArray<MessageItem>(
-          "/api/messages"
-        ),
+        fetchArray<MessageItem>("/api/messages"),
 
-        fetchArray(
-          "/api/team"
-        ),
+        fetchArray("/api/team"),
 
-        fetchArray(
-          "/api/achievements"
-        ),
+        fetchArray("/api/achievements"),
 
-        fetchArray(
-          "/api/services"
-        ),
+        fetchArray("/api/services"),
       ]);
 
       setCounts({
         news: newsData.length,
-        reports:
-          reportsData.length,
-        gallery:
-          galleryData.length,
-        stories:
-          storiesData.length,
-        messages:
-          messagesData.length,
+        reports: reportsData.length,
+        gallery: galleryData.length,
+        stories: storiesData.length,
+        messages: messagesData.length,
         team: teamData.length,
-        achievements:
-          achievementsData.length,
-        services:
-          servicesData.length,
+        achievements: achievementsData.length,
+        services: servicesData.length,
       });
 
       setNews(newsData);
-      setMessages(
-        messagesData
-      );
+      setMessages(messagesData);
     } finally {
       setLoading(false);
     }
@@ -189,172 +143,96 @@ export default function AdminDashboardPage() {
     loadDashboard();
   }, []);
 
-  const unreadMessages =
-    useMemo(
-      () =>
-        messages.filter(
-          (item) =>
-            !item.read
-        ).length,
-      [messages]
-    );
+  const unreadMessages = useMemo(
+    () => messages.filter((item) => !item.read).length,
+    [messages],
+  );
 
-  const publishedNews =
-    useMemo(
-      () =>
-        news.filter(
-          (item) =>
-            item.published
-        ).length,
-      [news]
-    );
+  const publishedNews = useMemo(
+    () => news.filter((item) => item.published).length,
+    [news],
+  );
 
-  const hiddenNews =
-    news.length -
-    publishedNews;
+  const hiddenNews = news.length - publishedNews;
 
-  const recentMessages = [
-    ...messages,
-  ]
+  const recentMessages = [...messages]
     .sort(
-      (
-        a,
-        b
-      ) =>
-        new Date(
-          b.createdAt
-        ).getTime() -
-        new Date(
-          a.createdAt
-        ).getTime()
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
-    .slice(
-      0,
-      4
-    );
+    .slice(0, 4);
 
-  const recentNews = [
-    ...news,
-  ]
+  const recentNews = [...news]
     .sort(
-      (
-        a,
-        b
-      ) =>
-        new Date(
-          b.createdAt ||
-            0
-        ).getTime() -
-        new Date(
-          a.createdAt ||
-            0
-        ).getTime()
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() -
+        new Date(a.createdAt || 0).getTime(),
     )
-    .slice(
-      0,
-      4
-    );
+    .slice(0, 4);
 
   const stats = [
     {
       label: "News",
-      value:
-        counts.news,
-      href:
-        "/admin/news",
-      icon:
-        Newspaper,
+      value: counts.news,
+      href: "/admin/news",
+      icon: Newspaper,
       description: `${publishedNews} published`,
     },
 
     {
-      label:
-        "Messages",
-      value:
-        counts.messages,
-      href:
-        "/admin/messages",
-      icon:
-        Mail,
+      label: "Messages",
+      value: counts.messages,
+      href: "/admin/messages",
+      icon: Mail,
       description: `${unreadMessages} unread`,
     },
 
     {
-      label:
-        "Services",
-      value:
-        counts.services,
-      href:
-        "/admin/services",
-      icon:
-        ShoppingBag,
-      description:
-        "Deposit, loans & digital",
+      label: "Services",
+      value: counts.services,
+      href: "/admin/services",
+      icon: ShoppingBag,
+      description: "Deposit, loans & digital",
     },
 
     {
-      label:
-        "Reports",
-      value:
-        counts.reports,
-      href:
-        "/admin/reports",
-      icon:
-        FileText,
-      description:
-        "Published reports",
+      label: "Reports",
+      value: counts.reports,
+      href: "/admin/reports",
+      icon: FileText,
+      description: "Published reports",
     },
 
     {
-      label:
-        "Gallery",
-      value:
-        counts.gallery,
-      href:
-        "/admin/gallery",
-      icon:
-        Images,
-      description:
-        "Gallery items",
+      label: "Gallery",
+      value: counts.gallery,
+      href: "/admin/gallery",
+      icon: Images,
+      description: "Gallery items",
     },
 
     {
-      label:
-        "Success Stories",
-      value:
-        counts.stories,
-      href:
-        "/admin/success-stories",
-      icon:
-        GalleryHorizontal,
-      description:
-        "Member stories",
+      label: "Success Stories",
+      value: counts.stories,
+      href: "/admin/success-stories",
+      icon: GalleryHorizontal,
+      description: "Member stories",
     },
 
     {
-      label:
-        "Team",
-      value:
-        counts.team,
-      href:
-        "/admin/team",
-      icon:
-        Users,
-      description:
-        "People listed",
+      label: "Team",
+      value: counts.team,
+      href: "/admin/team",
+      icon: Users,
+      description: "People listed",
     },
 
     {
-      label:
-        "Achievements",
-      value:
-        counts.achievements,
-      href:
-        "/admin/achievements",
-      icon:
-        Award,
-      description:
-        "Awards & milestones",
+      label: "Achievements",
+      value: counts.achievements,
+      href: "/admin/achievements",
+      icon: Award,
+      description: "Awards & milestones",
     },
   ];
 
@@ -375,9 +253,7 @@ export default function AdminDashboardPage() {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="flex items-center gap-2 text-blue-100">
-                <Sparkles
-                  size={17}
-                />
+                <Sparkles size={17} />
 
                 <span className="text-xs font-semibold uppercase tracking-[0.18em]">
                   Byas SACCOS CMS
@@ -389,13 +265,8 @@ export default function AdminDashboardPage() {
               </h1>
 
               <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-50/90 sm:text-base">
-                Manage website
-                content,
-                services,
-                reports and
-                member
-                communication
-                from one place.
+                Manage website content, services, reports and member
+                communication from one place.
               </p>
             </div>
 
@@ -409,23 +280,14 @@ export default function AdminDashboardPage() {
 
               <button
                 type="button"
-                onClick={
-                  loadDashboard
-                }
-                disabled={
-                  loading
-                }
+                onClick={loadDashboard}
+                disabled={loading}
                 className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20 disabled:opacity-50"
               >
                 <RefreshCw
                   size={16}
-                  className={
-                    loading
-                      ? "animate-spin"
-                      : ""
-                  }
+                  className={loading ? "animate-spin" : ""}
                 />
-
                 Refresh
               </button>
             </div>
@@ -435,30 +297,18 @@ export default function AdminDashboardPage() {
 
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             <TopSummary
-              icon={
-                CircleCheck
-              }
+              icon={CircleCheck}
               label="Website Content"
-              value={
-                totalContent
-              }
+              value={totalContent}
             />
 
             <TopSummary
               icon={Mail}
               label="Unread Messages"
-              value={
-                unreadMessages
-              }
+              value={unreadMessages}
             />
 
-            <TopSummary
-              icon={Eye}
-              label="Hidden News"
-              value={
-                hiddenNews
-              }
-            />
+            <TopSummary icon={Eye} label="Hidden News" value={hiddenNews} />
           </div>
         </div>
 
@@ -468,75 +318,50 @@ export default function AdminDashboardPage() {
           <div className="mb-4 flex items-end justify-between">
             <div>
               <h2 className="text-xl font-bold text-gray-900">
-                Content
-                Overview
+                Content Overview
               </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Live
-                quantities
-                from your
-                website.
+                Live quantities from your website.
               </p>
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {stats.map(
-              (
-                item
-              ) => {
-                const Icon =
-                  item.icon;
+            {stats.map((item) => {
+              const Icon = item.icon;
 
-                return (
-                  <Link
-                    key={
-                      item.href
-                    }
-                    href={
-                      item.href
-                    }
-                    className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EEF4FF] text-[#1F3C88] transition group-hover:bg-[#1F3C88] group-hover:text-white">
-                        <Icon
-                          size={
-                            20
-                          }
-                        />
-                      </div>
-
-                      <ArrowUpRight
-                        size={
-                          18
-                        }
-                        className="text-gray-300 transition group-hover:text-[#1F3C88]"
-                      />
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EEF4FF] text-[#1F3C88] transition group-hover:bg-[#1F3C88] group-hover:text-white">
+                      <Icon size={20} />
                     </div>
 
-                    <p className="mt-5 text-3xl font-bold tracking-tight text-gray-900">
-                      {loading
-                        ? "—"
-                        : item.value}
-                    </p>
+                    <ArrowUpRight
+                      size={18}
+                      className="text-gray-300 transition group-hover:text-[#1F3C88]"
+                    />
+                  </div>
 
-                    <p className="mt-1 font-semibold text-gray-800">
-                      {
-                        item.label
-                      }
-                    </p>
+                  <p className="mt-5 text-3xl font-bold tracking-tight text-gray-900">
+                    {loading ? "—" : item.value}
+                  </p>
 
-                    <p className="mt-1 text-xs text-gray-400">
-                      {
-                        item.description
-                      }
-                    </p>
-                  </Link>
-                );
-              }
-            )}
+                  <p className="mt-1 font-semibold text-gray-800">
+                    {item.label}
+                  </p>
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    {item.description}
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         </section>
 
@@ -548,15 +373,10 @@ export default function AdminDashboardPage() {
           <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4 sm:px-6">
               <div>
-                <h2 className="font-bold text-gray-900">
-                  Recent
-                  Messages
-                </h2>
+                <h2 className="font-bold text-gray-900">Recent Messages</h2>
 
                 <p className="mt-1 text-xs text-gray-400">
-                  Latest
-                  contact
-                  submissions
+                  Latest contact submissions
                 </p>
               </div>
 
@@ -569,57 +389,42 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="divide-y">
-              {recentMessages.length >
-              0 ? (
-                recentMessages.map(
-                  (
-                    message
-                  ) => (
-                    <Link
-                      key={
-                        message._id
-                      }
-                      href="/admin/messages"
-                      className="flex gap-4 px-5 py-4 transition hover:bg-[#F8FAFF] sm:px-6"
-                    >
-                      <div
-                        className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${
-                          message.read
-                            ? "bg-gray-300"
-                            : "bg-amber-400"
-                        }`}
-                      />
+              {recentMessages.length > 0 ? (
+                recentMessages.map((message) => (
+                  <Link
+                    key={message._id}
+                    href="/admin/messages"
+                    className="flex gap-4 px-5 py-4 transition hover:bg-[#F8FAFF] sm:px-6"
+                  >
+                    <div
+                      className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${
+                        message.read ? "bg-gray-300" : "bg-amber-400"
+                      }`}
+                    />
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="truncate text-sm font-semibold text-gray-800">
-                            {
-                              message.name
-                            }
-                          </p>
-
-                          {!message.read && (
-                            <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                              NEW
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="mt-1 truncate text-xs font-medium text-gray-500">
-                          {
-                            message.subject
-                          }
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="truncate text-sm font-semibold text-gray-800">
+                          {message.name}
                         </p>
 
-                        <p className="mt-1 line-clamp-1 text-xs text-gray-400">
-                          {
-                            message.message
-                          }
-                        </p>
+                        {!message.read && (
+                          <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                            NEW
+                          </span>
+                        )}
                       </div>
-                    </Link>
-                  )
-                )
+
+                      <p className="mt-1 truncate text-xs font-medium text-gray-500">
+                        {message.subject}
+                      </p>
+
+                      <p className="mt-1 line-clamp-1 text-xs text-gray-400">
+                        {message.message}
+                      </p>
+                    </div>
+                  </Link>
+                ))
               ) : (
                 <EmptyArea text="No messages yet." />
               )}
@@ -631,14 +436,10 @@ export default function AdminDashboardPage() {
           <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4 sm:px-6">
               <div>
-                <h2 className="font-bold text-gray-900">
-                  Recent News
-                </h2>
+                <h2 className="font-bold text-gray-900">Recent News</h2>
 
                 <p className="mt-1 text-xs text-gray-400">
-                  Recently
-                  created
-                  articles
+                  Recently created articles
                 </p>
               </div>
 
@@ -651,72 +452,46 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="divide-y">
-              {recentNews.length >
-              0 ? (
-                recentNews.map(
-                  (
-                    item
-                  ) => (
-                    <Link
-                      key={
-                        item._id
-                      }
-                      href="/admin/news"
-                      className="flex items-center gap-4 px-5 py-4 transition hover:bg-[#F8FAFF] sm:px-6"
-                    >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EEF4FF] text-[#1F3C88]">
-                        <Newspaper
-                          size={
-                            18
-                          }
-                        />
-                      </div>
+              {recentNews.length > 0 ? (
+                recentNews.map((item) => (
+                  <Link
+                    key={item._id}
+                    href="/admin/news"
+                    className="flex items-center gap-4 px-5 py-4 transition hover:bg-[#F8FAFF] sm:px-6"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EEF4FF] text-[#1F3C88]">
+                      <Newspaper size={18} />
+                    </div>
 
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-gray-800">
-                          {
-                            item.title
-                          }
-                        </p>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-gray-800">
+                        {item.title}
+                      </p>
 
-                        <div className="mt-1 flex items-center gap-2">
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                              item.published
-                                ? "bg-green-50 text-green-700"
-                                : "bg-gray-100 text-gray-500"
-                            }`}
-                          >
-                            {item.published
-                              ? "Published"
-                              : "Hidden"}
+                      <div className="mt-1 flex items-center gap-2">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                            item.published
+                              ? "bg-green-50 text-green-700"
+                              : "bg-gray-100 text-gray-500"
+                          }`}
+                        >
+                          {item.published ? "Published" : "Hidden"}
+                        </span>
+
+                        {item.createdAt && (
+                          <span className="flex items-center gap-1 text-[11px] text-gray-400">
+                            <Clock3 size={11} />
+
+                            {new Date(item.createdAt).toLocaleDateString()}
                           </span>
-
-                          {item.createdAt && (
-                            <span className="flex items-center gap-1 text-[11px] text-gray-400">
-                              <Clock3
-                                size={
-                                  11
-                                }
-                              />
-
-                              {new Date(
-                                item.createdAt
-                              ).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </div>
+                    </div>
 
-                      <ArrowUpRight
-                        size={
-                          16
-                        }
-                        className="text-gray-300"
-                      />
-                    </Link>
-                  )
-                )
+                    <ArrowUpRight size={16} className="text-gray-300" />
+                  </Link>
+                ))
               ) : (
                 <EmptyArea text="No news added yet." />
               )}
@@ -728,44 +503,23 @@ export default function AdminDashboardPage() {
 
         <section className="mt-7 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
           <div>
-            <h2 className="font-bold text-gray-900">
-              Quick Actions
-            </h2>
+            <h2 className="font-bold text-gray-900">Quick Actions</h2>
 
             <p className="mt-1 text-xs text-gray-400">
-              Jump
-              directly to
-              common
-              administrative
-              tasks.
+              Jump directly to common administrative tasks.
             </p>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-3">
-            <QuickAction
-              href="/admin/news"
-              text="Create News"
-            />
+            <QuickAction href="/admin/news" text="Create News" />
 
-            <QuickAction
-              href="/admin/services"
-              text="Manage Services"
-            />
+            <QuickAction href="/admin/services" text="Manage Services" />
 
-            <QuickAction
-              href="/admin/gallery"
-              text="Upload Gallery"
-            />
+            <QuickAction href="/admin/gallery" text="Upload Gallery" />
 
-            <QuickAction
-              href="/admin/team"
-              text="Manage Team"
-            />
+            <QuickAction href="/admin/team" text="Manage Team" />
 
-            <QuickAction
-              href="/admin/account"
-              text="Account Settings"
-            />
+            <QuickAction href="/admin/account" text="Account Settings" />
           </div>
         </section>
       </div>
@@ -790,26 +544,16 @@ function TopSummary({
         </div>
 
         <div>
-          <p className="text-2xl font-bold">
-            {value}
-          </p>
+          <p className="text-2xl font-bold">{value}</p>
 
-          <p className="text-xs text-blue-100">
-            {label}
-          </p>
+          <p className="text-xs text-blue-100">{label}</p>
         </div>
       </div>
     </div>
   );
 }
 
-function QuickAction({
-  href,
-  text,
-}: {
-  href: string;
-  text: string;
-}) {
+function QuickAction({ href, text }: { href: string; text: string }) {
   return (
     <Link
       href={href}
@@ -825,14 +569,8 @@ function QuickAction({
   );
 }
 
-function EmptyArea({
-  text,
-}: {
-  text: string;
-}) {
+function EmptyArea({ text }: { text: string }) {
   return (
-    <div className="px-6 py-10 text-center text-sm text-gray-400">
-      {text}
-    </div>
+    <div className="px-6 py-10 text-center text-sm text-gray-400">{text}</div>
   );
 }

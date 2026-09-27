@@ -3,7 +3,7 @@ import { ArrowRight, FileText } from "lucide-react";
 
 import { notFound } from "next/navigation";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { API_URL } from "@/lib/api";
 
 interface Service {
   _id: string;

@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { getAssetUrl } from "@/lib/api";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { API_URL, getAssetUrl } from "@/lib/api";
 
 interface NewsItem {
   title: string;

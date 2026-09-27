@@ -1,8 +1,7 @@
 import Link from "next/link";
 
 import { ArrowRight, Quote } from "lucide-react";
-
-import { getAssetUrl } from "@/lib/api";
+import { API_URL, getAssetUrl } from "@/lib/api";
 
 interface SuccessStory {
   _id: string;
@@ -12,12 +11,10 @@ interface SuccessStory {
   imageUrl: string;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 async function getStories(): Promise<SuccessStory[]> {
-  const response = await fetch(`${BACKEND_URL}/api/success-stories`, {
-    cache: "no-store",
-  });
+  const response = await fetch(`${API_URL}/api/success-stories`, {
+  cache: "no-store",
+});
 
   if (!response.ok) {
     throw new Error("Failed to load success stories");

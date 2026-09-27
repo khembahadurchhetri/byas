@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 
 import { Mail, MessageSquare, Send, Tag, User } from "lucide-react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { API_URL } from "@/lib/api";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);

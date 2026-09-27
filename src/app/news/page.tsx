@@ -2,9 +2,7 @@ import Link from "next/link";
 
 import { ArrowRight, CalendarDays, Newspaper } from "lucide-react";
 
-import { getAssetUrl } from "@/lib/api";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { API_URL, getAssetUrl } from "@/lib/api";
 
 interface NewsItem {
   _id: string;

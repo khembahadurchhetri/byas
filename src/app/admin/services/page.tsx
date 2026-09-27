@@ -15,6 +15,7 @@ import {
 
 import ConfirmModal from "@/components/ConfirmModal";
 import RichTextEditor from "@/components/RichTextEditor";
+import { API_URL as BACKEND_URL } from "@/lib/api";
 
 type ServiceType = "content" | "image" | "external-link";
 
@@ -46,8 +47,6 @@ interface Service {
   order: number;
   published: boolean;
 }
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const API_URL = `${BACKEND_URL}/api/services`;
 

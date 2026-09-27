@@ -3,10 +3,10 @@ import type {
   Response,
 } from "express";
 
-import fs from "node:fs";
-import path from "node:path";
-
 import News from "../models/News.js";
+import cloudinary from "../config/cloudinary.js";
+import { uploadImageToCloudinary } from "../utils/uploadToCloudinary.js";
+
 function createSlug(title: string) {
   return title
     .normalize("NFC")
@@ -33,7 +33,6 @@ async function uniqueSlug(
     const existing =
       await News.findOne({
         slug,
-
         ...(currentId
           ? {
               _id: {
@@ -173,10 +172,22 @@ export async function createNews(
         cleanTitle
       );
 
-    const imageUrl =
-      req.file
-        ? `/uploads/news/${req.file.filename}`
-        : "";
+    let imageUrl = "";
+    let imagePublicId = "";
+
+    if (req.file) {
+      const uploadResult =
+        await uploadImageToCloudinary(
+          req.file.buffer,
+          "byas/news"
+        );
+
+      imageUrl =
+        uploadResult.secure_url;
+
+      imagePublicId =
+        uploadResult.public_id;
+    }
 
     const news =
       await News.create({
@@ -195,6 +206,8 @@ export async function createNews(
           content || "",
 
         imageUrl,
+
+        imagePublicId,
 
         published:
           published !==
@@ -317,32 +330,27 @@ export async function updateNews(
     }
 
     if (req.file) {
-      if (
-        news.imageUrl
-      ) {
-        const oldImagePath =
-          path.join(
-            process.cwd(),
+      const uploadResult =
+        await uploadImageToCloudinary(
+          req.file.buffer,
+          "byas/news"
+        );
 
-            news.imageUrl.replace(
-              /^\/uploads\//,
-              "uploads/"
-            )
-          );
-
-        if (
-          fs.existsSync(
-            oldImagePath
-          )
-        ) {
-          fs.unlinkSync(
-            oldImagePath
-          );
-        }
+      if (news.imagePublicId) {
+        await cloudinary.uploader.destroy(
+          news.imagePublicId,
+          {
+            resource_type:
+              "image",
+          }
+        );
       }
 
       news.imageUrl =
-        `/uploads/news/${req.file.filename}`;
+        uploadResult.secure_url;
+
+      news.imagePublicId =
+        uploadResult.public_id;
     }
 
     await news.save();
@@ -387,26 +395,14 @@ export async function deleteNews(
         });
     }
 
-    if (news.imageUrl) {
-      const imagePath =
-        path.join(
-          process.cwd(),
-
-          news.imageUrl.replace(
-            /^\/uploads\//,
-            "uploads/"
-          )
-        );
-
-      if (
-        fs.existsSync(
-          imagePath
-        )
-      ) {
-        fs.unlinkSync(
-          imagePath
-        );
-      }
+    if (news.imagePublicId) {
+      await cloudinary.uploader.destroy(
+        news.imagePublicId,
+        {
+          resource_type:
+            "image",
+        }
+      );
     }
 
     await news.deleteOne();

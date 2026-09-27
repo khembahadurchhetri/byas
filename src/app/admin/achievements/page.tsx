@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
+import { getAssetUrl } from "@/lib/api";
+
 interface Achievement {
   _id: string;
   title: string;
@@ -379,7 +381,7 @@ border-[#1F3C88]"
                 <div className="h-28 w-full shrink-0 overflow-hidden rounded-xl bg-gray-100 sm:w-36">
                   {achievement.imageUrl ? (
                     <img
-                      src={`${BACKEND_URL}${achievement.imageUrl}`}
+                      src={getAssetUrl(achievement.imageUrl)}
                       alt={achievement.title}
                       className="h-full w-full object-contain"
                     />

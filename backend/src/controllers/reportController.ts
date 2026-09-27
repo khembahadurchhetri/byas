@@ -3,21 +3,60 @@ import type {
   Response,
 } from "express";
 
-import fs from "node:fs";
-import path from "node:path";
-
+import cloudinary from "../config/cloudinary.js";
 import Report from "../models/Report.js";
 
-function getStoredFilePath(
-  fileUrl: string
+import {
+  uploadFileToCloudinary,
+} from "../utils/uploadToCloudinary.js";
+
+import {
+  compressPdf,
+} from "../utils/compressPdf.js";
+
+const CLOUDINARY_MAX_PDF_SIZE =
+  10 * 1024 * 1024;
+
+function formatMb(bytes: number) {
+  return (
+    bytes /
+    1024 /
+    1024
+  ).toFixed(2);
+}
+
+async function preparePdfForCloudinary(
+  buffer: Buffer
 ) {
-  return path.join(
-    process.cwd(),
-    fileUrl.replace(
-      /^\/uploads\//,
-      "uploads/"
-    )
+  console.log(
+    `Original PDF size: ${formatMb(
+      buffer.length
+    )} MB`
   );
+
+  const compressed =
+    await compressPdf(buffer);
+
+  console.log(
+    `Compressed PDF size: ${formatMb(
+      compressed.length
+    )} MB`
+  );
+
+  if (
+    compressed.length >
+    CLOUDINARY_MAX_PDF_SIZE
+  ) {
+    return {
+      ok: false as const,
+      buffer: compressed,
+    };
+  }
+
+  return {
+    ok: true as const,
+    buffer: compressed,
+  };
 }
 
 export async function getReports(
@@ -33,21 +72,17 @@ export async function getReports(
         createdAt: -1,
       });
 
-    return res.json(
-      reports
-    );
+    return res.json(reports);
   } catch (error) {
     console.error(
       "Get reports error:",
       error
     );
 
-    return res
-      .status(500)
-      .json({
-        message:
-          "Failed to load reports",
-      });
+    return res.status(500).json({
+      message:
+        "Failed to load reports",
+    });
   }
 }
 
@@ -63,87 +98,115 @@ export async function createReport(
     } = req.body;
 
     if (!title?.trim()) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Title is required",
-        });
+      return res.status(400).json({
+        message:
+          "Title is required",
+      });
     }
 
     if (!reportDate) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Report date is required",
-        });
+      return res.status(400).json({
+        message:
+          "Report date is required",
+      });
     }
 
     const parsedReportDate =
-      new Date(
-        reportDate
-      );
+      new Date(reportDate);
 
     if (
       Number.isNaN(
         parsedReportDate.getTime()
       )
     ) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Invalid report date",
-        });
+      return res.status(400).json({
+        message:
+          "Invalid report date",
+      });
     }
 
     if (!req.file) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "PDF file is required",
-        });
+      return res.status(400).json({
+        message:
+          "PDF file is required",
+      });
     }
 
-    const fileUrl =
-      `/uploads/reports/${req.file.filename}`;
+    const preparedPdf =
+      await preparePdfForCloudinary(
+        req.file.buffer
+      );
+
+    if (!preparedPdf.ok) {
+      return res.status(413).json({
+        message:
+          `PDF was compressed from ${formatMb(
+            req.file.buffer.length
+          )} MB to ${formatMb(
+            preparedPdf.buffer.length
+          )} MB, but it is still above the current 10 MB Cloudinary upload limit.`,
+      });
+    }
+
+    const uploadResult =
+      await uploadFileToCloudinary(
+        preparedPdf.buffer,
+        "byas/reports",
+        "raw"
+      );
 
     const report =
       await Report.create({
         title:
           title.trim(),
 
-        fileUrl,
+        fileUrl:
+          uploadResult.secure_url,
+
+        filePublicId:
+          uploadResult.public_id,
 
         reportDate:
           parsedReportDate,
 
         published:
-          published !==
-          "false",
+          published !== "false",
       });
 
-    return res
-      .status(201)
-      .json({
-        message:
-          "Report created successfully",
-        report,
-      });
+    return res.status(201).json({
+      message:
+        "Report created successfully",
+      report,
+    });
   } catch (error) {
     console.error(
       "Create report error:",
       error
     );
 
-    return res
-      .status(500)
-      .json({
+    const message =
+      error instanceof Error
+        ? error.message
+        : "";
+
+    if (
+      message.includes(
+        "gswin64c"
+      ) ||
+      message.includes(
+        "ENOENT"
+      )
+    ) {
+      return res.status(500).json({
         message:
-          "Failed to create report",
+          "PDF compression service is not available on the server.",
       });
+    }
+
+    return res.status(500).json({
+      message:
+        "Failed to create report",
+    });
   }
 }
 
@@ -162,32 +225,23 @@ export async function updateReport(
     } = req.body;
 
     const report =
-      await Report.findById(
-        id
-      );
+      await Report.findById(id);
 
     if (!report) {
-      return res
-        .status(404)
-        .json({
-          message:
-            "Report not found",
-        });
+      return res.status(404).json({
+        message:
+          "Report not found",
+      });
     }
 
     if (
-      title !==
-      undefined
+      title !== undefined
     ) {
-      if (
-        !title.trim()
-      ) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "Title cannot be empty",
-          });
+      if (!title.trim()) {
+        return res.status(400).json({
+          message:
+            "Title cannot be empty",
+        });
       }
 
       report.title =
@@ -195,34 +249,27 @@ export async function updateReport(
     }
 
     if (
-      reportDate !==
-      undefined
+      reportDate !== undefined
     ) {
       if (!reportDate) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "Report date is required",
-          });
+        return res.status(400).json({
+          message:
+            "Report date is required",
+        });
       }
 
       const parsedReportDate =
-        new Date(
-          reportDate
-        );
+        new Date(reportDate);
 
       if (
         Number.isNaN(
           parsedReportDate.getTime()
         )
       ) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "Invalid report date",
-          });
+        return res.status(400).json({
+          message:
+            "Invalid report date",
+        });
       }
 
       report.reportDate =
@@ -230,38 +277,54 @@ export async function updateReport(
     }
 
     if (
-      published !==
-      undefined
+      published !== undefined
     ) {
       report.published =
-        published ===
-          true ||
-        published ===
-          "true";
+        published === true ||
+        published === "true";
     }
 
     if (req.file) {
-      if (
-        report.fileUrl
-      ) {
-        const oldFilePath =
-          getStoredFilePath(
-            report.fileUrl
-          );
+      const preparedPdf =
+        await preparePdfForCloudinary(
+          req.file.buffer
+        );
 
-        if (
-          fs.existsSync(
-            oldFilePath
-          )
-        ) {
-          fs.unlinkSync(
-            oldFilePath
-          );
-        }
+      if (!preparedPdf.ok) {
+        return res.status(413).json({
+          message:
+            `PDF was compressed from ${formatMb(
+              req.file.buffer.length
+            )} MB to ${formatMb(
+              preparedPdf.buffer.length
+            )} MB, but it is still above the current 10 MB Cloudinary upload limit.`,
+        });
+      }
+
+      const uploadResult =
+        await uploadFileToCloudinary(
+          preparedPdf.buffer,
+          "byas/reports",
+          "raw"
+        );
+
+      if (
+        report.filePublicId
+      ) {
+        await cloudinary.uploader.destroy(
+          report.filePublicId,
+          {
+            resource_type:
+              "raw",
+          }
+        );
       }
 
       report.fileUrl =
-        `/uploads/reports/${req.file.filename}`;
+        uploadResult.secure_url;
+
+      report.filePublicId =
+        uploadResult.public_id;
     }
 
     await report.save();
@@ -277,12 +340,29 @@ export async function updateReport(
       error
     );
 
-    return res
-      .status(500)
-      .json({
+    const message =
+      error instanceof Error
+        ? error.message
+        : "";
+
+    if (
+      message.includes(
+        "gswin64c"
+      ) ||
+      message.includes(
+        "ENOENT"
+      )
+    ) {
+      return res.status(500).json({
         message:
-          "Failed to update report",
+          "PDF compression service is not available on the server.",
       });
+    }
+
+    return res.status(500).json({
+      message:
+        "Failed to update report",
+    });
   }
 }
 
@@ -295,36 +375,25 @@ export async function deleteReport(
       req.params;
 
     const report =
-      await Report.findById(
-        id
-      );
+      await Report.findById(id);
 
     if (!report) {
-      return res
-        .status(404)
-        .json({
-          message:
-            "Report not found",
-        });
+      return res.status(404).json({
+        message:
+          "Report not found",
+      });
     }
 
     if (
-      report.fileUrl
+      report.filePublicId
     ) {
-      const filePath =
-        getStoredFilePath(
-          report.fileUrl
-        );
-
-      if (
-        fs.existsSync(
-          filePath
-        )
-      ) {
-        fs.unlinkSync(
-          filePath
-        );
-      }
+      await cloudinary.uploader.destroy(
+        report.filePublicId,
+        {
+          resource_type:
+            "raw",
+        }
+      );
     }
 
     await report.deleteOne();
@@ -339,11 +408,9 @@ export async function deleteReport(
       error
     );
 
-    return res
-      .status(500)
-      .json({
-        message:
-          "Failed to delete report",
-      });
+    return res.status(500).json({
+      message:
+        "Failed to delete report",
+    });
   }
 }

@@ -1,13 +1,10 @@
 import type { Request, Response } from "express";
-import fs from "node:fs";
-import path from "node:path";
 
+import cloudinary from "../config/cloudinary.js";
 import SuccessStory from "../models/SuccessStory.js";
+import { uploadImageToCloudinary } from "../utils/uploadToCloudinary.js";
 
-export async function getSuccessStories(
-  _req: Request,
-  res: Response
-) {
+export async function getSuccessStories(_req: Request, res: Response) {
   try {
     const stories = await SuccessStory.find({
       published: true,
@@ -25,10 +22,7 @@ export async function getSuccessStories(
   }
 }
 
-export async function getSuccessStoryById(
-  req: Request,
-  res: Response
-) {
+export async function getSuccessStoryById(req: Request, res: Response) {
   try {
     const story = await SuccessStory.findOne({
       _id: req.params.id,
@@ -43,10 +37,7 @@ export async function getSuccessStoryById(
 
     return res.json(story);
   } catch (error) {
-    console.error(
-      "Get success story error:",
-      error
-    );
+    console.error("Get success story error:", error);
 
     return res.status(500).json({
       message: "Failed to load success story",
@@ -54,17 +45,9 @@ export async function getSuccessStoryById(
   }
 }
 
-export async function createSuccessStory(
-  req: Request,
-  res: Response
-) {
+export async function createSuccessStory(req: Request, res: Response) {
   try {
-    const {
-      name,
-      title,
-      story,
-      published,
-    } = req.body;
+    const { name, title, story, published } = req.body;
 
     if (!name?.trim()) {
       return res.status(400).json({
@@ -72,28 +55,34 @@ export async function createSuccessStory(
       });
     }
 
-    const imageUrl = req.file
-      ? `/uploads/success-stories/${req.file.filename}`
-      : "";
+    let imageUrl = "";
+    let imagePublicId = "";
 
-    const successStory =
-      await SuccessStory.create({
-        name: name.trim(),
-        title: title?.trim() || "",
-        story: story || "",
-        imageUrl,
-        published: published !== "false",
-      });
+    if (req.file) {
+      const uploadResult = await uploadImageToCloudinary(
+        req.file.buffer,
+        "byas/success-stories",
+      );
+
+      imageUrl = uploadResult.secure_url;
+      imagePublicId = uploadResult.public_id;
+    }
+
+    const successStory = await SuccessStory.create({
+      name: name.trim(),
+      title: title?.trim() || "",
+      story: story || "",
+      imageUrl,
+      imagePublicId,
+      published: published !== "false",
+    });
 
     return res.status(201).json({
       message: "Success story created",
       successStory,
     });
   } catch (error) {
-    console.error(
-      "Create success story error:",
-      error
-    );
+    console.error("Create success story error:", error);
 
     return res.status(500).json({
       message: "Failed to create success story",
@@ -101,22 +90,13 @@ export async function createSuccessStory(
   }
 }
 
-export async function updateSuccessStory(
-  req: Request,
-  res: Response
-) {
+export async function updateSuccessStory(req: Request, res: Response) {
   try {
     const { id } = req.params;
 
-    const {
-      name,
-      title,
-      story,
-      published,
-    } = req.body;
+    const { name, title, story, published } = req.body;
 
-    const successStory =
-      await SuccessStory.findById(id);
+    const successStory = await SuccessStory.findById(id);
 
     if (!successStory) {
       return res.status(404).json({
@@ -137,28 +117,23 @@ export async function updateSuccessStory(
     }
 
     if (published !== undefined) {
-      successStory.published =
-        published === true ||
-        published === "true";
+      successStory.published = published === true || published === "true";
     }
 
     if (req.file) {
-      if (successStory.imageUrl) {
-        const oldImagePath = path.join(
-          process.cwd(),
-          successStory.imageUrl.replace(
-            /^\/uploads\//,
-            "uploads/"
-          )
-        );
+      const uploadResult = await uploadImageToCloudinary(
+        req.file.buffer,
+        "byas/success-stories",
+      );
 
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
+      if (successStory.imagePublicId) {
+        await cloudinary.uploader.destroy(successStory.imagePublicId, {
+          resource_type: "image",
+        });
       }
 
-      successStory.imageUrl =
-        `/uploads/success-stories/${req.file.filename}`;
+      successStory.imageUrl = uploadResult.secure_url;
+      successStory.imagePublicId = uploadResult.public_id;
     }
 
     await successStory.save();
@@ -168,10 +143,7 @@ export async function updateSuccessStory(
       successStory,
     });
   } catch (error) {
-    console.error(
-      "Update success story error:",
-      error
-    );
+    console.error("Update success story error:", error);
 
     return res.status(500).json({
       message: "Failed to update success story",
@@ -179,15 +151,9 @@ export async function updateSuccessStory(
   }
 }
 
-export async function deleteSuccessStory(
-  req: Request,
-  res: Response
-) {
+export async function deleteSuccessStory(req: Request, res: Response) {
   try {
-    const successStory =
-      await SuccessStory.findById(
-        req.params.id
-      );
+    const successStory = await SuccessStory.findById(req.params.id);
 
     if (!successStory) {
       return res.status(404).json({
@@ -195,18 +161,10 @@ export async function deleteSuccessStory(
       });
     }
 
-    if (successStory.imageUrl) {
-      const imagePath = path.join(
-        process.cwd(),
-        successStory.imageUrl.replace(
-          /^\/uploads\//,
-          "uploads/"
-        )
-      );
-
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
+    if (successStory.imagePublicId) {
+      await cloudinary.uploader.destroy(successStory.imagePublicId, {
+        resource_type: "image",
+      });
     }
 
     await successStory.deleteOne();
@@ -215,10 +173,7 @@ export async function deleteSuccessStory(
       message: "Success story deleted",
     });
   } catch (error) {
-    console.error(
-      "Delete success story error:",
-      error
-    );
+    console.error("Delete success story error:", error);
 
     return res.status(500).json({
       message: "Failed to delete success story",

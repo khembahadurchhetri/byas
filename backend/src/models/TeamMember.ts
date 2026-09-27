@@ -7,17 +7,19 @@ const teamMemberSchema = new Schema(
       required: true,
       trim: true,
     },
-   
 
     position: {
       type: String,
       required: true,
       trim: true,
     },
-    
- 
 
     imageUrl: {
+      type: String,
+      default: "",
+    },
+
+    imagePublicId: {
       type: String,
       default: "",
     },
@@ -38,11 +40,10 @@ const teamMemberSchema = new Schema(
       default: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const TeamMember =
-  mongoose.models.TeamMember ||
-  mongoose.model("TeamMember", teamMemberSchema);
+  mongoose.models.TeamMember || mongoose.model("TeamMember", teamMemberSchema);
 
 export default TeamMember;

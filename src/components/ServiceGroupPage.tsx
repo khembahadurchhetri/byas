@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
+import { getAssetUrl } from "@/lib/api";
 
 type ServiceGroup =
   | "savings"
@@ -184,7 +185,7 @@ export default async function ServiceGroupPage({
                     <article className="overflow-hidden rounded-2xl border bg-white p-4 shadow-sm sm:p-7">
                       {selectedService.imageUrl ? (
                         <img
-                          src={`${BACKEND_URL}${selectedService.imageUrl}`}
+                          src={getAssetUrl(selectedService.imageUrl)}
                           alt={selectedService.title}
                           className="mx-auto h-auto max-h-[1100px] w-full object-contain"
                         />

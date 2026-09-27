@@ -1,42 +1,12 @@
 import type { Request, Response } from "express";
-import fs from "node:fs";
-import path from "node:path";
 
+import cloudinary from "../config/cloudinary.js";
 import TeamMember from "../models/TeamMember.js";
+import { uploadImageToCloudinary } from "../utils/uploadToCloudinary.js";
 
-const VALID_GROUPS = [
-  "board",
-  "audit",
-  "management",
-];
+const VALID_GROUPS = ["board", "audit", "management"];
 
-function deleteOldImage(imageUrl?: string) {
-  if (!imageUrl) return;
-
-  try {
-    const relativePath = imageUrl.replace(
-      /^\/uploads\//,
-      ""
-    );
-
-    const fullPath = path.join(
-      process.cwd(),
-      "uploads",
-      relativePath
-    );
-
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
-    }
-  } catch (error) {
-    console.error("Image cleanup error:", error);
-  }
-}
-
-export async function getTeamMembers(
-  req: Request,
-  res: Response
-) {
+export async function getTeamMembers(req: Request, res: Response) {
   try {
     const group = req.query.group as string | undefined;
 
@@ -67,16 +37,13 @@ export async function getTeamMembers(
   }
 }
 
-export async function createTeamMember(
-  req: Request,
-  res: Response
-) {
+export async function createTeamMember(req: Request, res: Response) {
   try {
     const {
       name,
-     
+
       position,
-      
+
       group,
       order,
       published,
@@ -84,8 +51,7 @@ export async function createTeamMember(
 
     if (!name || !position || !group) {
       return res.status(400).json({
-        message:
-          "English name, position and group are required.",
+        message: "English name, position and group are required.",
       });
     }
 
@@ -95,18 +61,30 @@ export async function createTeamMember(
       });
     }
 
+    let imageUrl = "";
+    let imagePublicId = "";
+
+    if (req.file) {
+      const uploadResult = await uploadImageToCloudinary(
+        req.file.buffer,
+        "byas/team",
+      );
+
+      imageUrl = uploadResult.secure_url;
+      imagePublicId = uploadResult.public_id;
+    }
+
     const member = await TeamMember.create({
       name: name.trim(),
-      
+
       position: position.trim(),
-      
+
       group,
       order: Number(order) || 0,
       published: published !== "false",
 
-      imageUrl: req.file
-        ? `/uploads/team/${req.file.filename}`
-        : "",
+      imageUrl,
+      imagePublicId,
     });
 
     return res.status(201).json(member);
@@ -119,14 +97,9 @@ export async function createTeamMember(
   }
 }
 
-export async function updateTeamMember(
-  req: Request,
-  res: Response
-) {
+export async function updateTeamMember(req: Request, res: Response) {
   try {
-    const member = await TeamMember.findById(
-      req.params.id
-    );
+    const member = await TeamMember.findById(req.params.id);
 
     if (!member) {
       return res.status(404).json({
@@ -134,20 +107,10 @@ export async function updateTeamMember(
       });
     }
 
-    const {
-      name,
-      nameNp,
-      position,
-      positionNp,
-      group,
-      order,
-      published,
-    } = req.body;
+    const { name, nameNp, position, positionNp, group, order, published } =
+      req.body;
 
-    if (
-      group &&
-      !VALID_GROUPS.includes(group)
-    ) {
+    if (group && !VALID_GROUPS.includes(group)) {
       return res.status(400).json({
         message: "Invalid team group.",
       });
@@ -178,15 +141,23 @@ export async function updateTeamMember(
     }
 
     if (published !== undefined) {
-      member.published =
-        published === "true";
+      member.published = published === "true";
     }
 
     if (req.file) {
-      deleteOldImage(member.imageUrl);
+      const uploadResult = await uploadImageToCloudinary(
+        req.file.buffer,
+        "byas/team",
+      );
 
-      member.imageUrl =
-        `/uploads/team/${req.file.filename}`;
+      if (member.imagePublicId) {
+        await cloudinary.uploader.destroy(member.imagePublicId, {
+          resource_type: "image",
+        });
+      }
+
+      member.imageUrl = uploadResult.secure_url;
+      member.imagePublicId = uploadResult.public_id;
     }
 
     await member.save();
@@ -201,14 +172,9 @@ export async function updateTeamMember(
   }
 }
 
-export async function deleteTeamMember(
-  req: Request,
-  res: Response
-) {
+export async function deleteTeamMember(req: Request, res: Response) {
   try {
-    const member = await TeamMember.findById(
-      req.params.id
-    );
+    const member = await TeamMember.findById(req.params.id);
 
     if (!member) {
       return res.status(404).json({
@@ -216,7 +182,11 @@ export async function deleteTeamMember(
       });
     }
 
-    deleteOldImage(member.imageUrl);
+    if (member.imagePublicId) {
+      await cloudinary.uploader.destroy(member.imagePublicId, {
+        resource_type: "image",
+      });
+    }
 
     await member.deleteOne();
 

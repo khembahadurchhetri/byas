@@ -36,6 +36,11 @@ const newsSchema = new Schema(
       default: "",
     },
 
+    imagePublicId: {
+      type: String,
+      default: "",
+    },
+
     published: {
       type: Boolean,
       default: true,
@@ -46,6 +51,8 @@ const newsSchema = new Schema(
   },
 );
 
-const News = mongoose.models.News || mongoose.model("News", newsSchema);
+const News =
+  mongoose.models.News ||
+  mongoose.model("News", newsSchema);
 
 export default News;

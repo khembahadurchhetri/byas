@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { getAssetUrl } from "@/lib/api";
+
 interface SuccessStory {
   _id: string;
   name: string;
@@ -47,7 +49,7 @@ export default async function SuccessStoryDetailPage({
         <div className="overflow-hidden bg-white shadow-sm">
           {item.imageUrl && (
             <img
-              src={`http://localhost:5000${item.imageUrl}`}
+              src={getAssetUrl(item.imageUrl)}
               alt={item.name}
               className="max-h-[520px] w-full object-cover"
             />

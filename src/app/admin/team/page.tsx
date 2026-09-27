@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
+import { getAssetUrl } from "@/lib/api";
+
 interface TeamMember {
   _id: string;
   name: string;
@@ -449,7 +451,7 @@ border-[#1F3C88]"
                 <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-gray-100">
                   {member.imageUrl ? (
                     <img
-                      src={`${BACKEND_URL}${member.imageUrl}`}
+                      src={getAssetUrl(member.imageUrl)}
                       alt={member.name}
                       className="h-full w-full object-cover"
                     />

@@ -13,6 +13,11 @@ const gallerySchema = new Schema(
       required: true,
     },
 
+    imagePublicId: {
+      type: String,
+      default: "",
+    },
+
     published: {
       type: Boolean,
       default: true,

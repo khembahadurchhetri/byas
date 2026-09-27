@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import fs from "node:fs";
-import path from "node:path";
 
 import Gallery from "../models/Gallery.js";
+import cloudinary from "../config/cloudinary.js";
+import { uploadImageToCloudinary } from "../utils/uploadToCloudinary.js";
 
 export async function getGallery(
   _req: Request,
@@ -38,12 +38,16 @@ export async function createGalleryImage(
       });
     }
 
-    const imageUrl =
-      `/uploads/gallery/${req.file.filename}`;
+    const uploadResult =
+      await uploadImageToCloudinary(
+        req.file.buffer,
+        "byas/gallery"
+      );
 
     const image = await Gallery.create({
       title: title?.trim() || "",
-      imageUrl,
+      imageUrl: uploadResult.secure_url,
+      imagePublicId: uploadResult.public_id,
       published: published !== "false",
     });
 
@@ -87,22 +91,26 @@ export async function updateGalleryImage(
     }
 
     if (req.file) {
-      if (image.imageUrl) {
-        const oldImagePath = path.join(
-          process.cwd(),
-          image.imageUrl.replace(
-            /^\/uploads\//,
-            "uploads/"
-          )
+      const uploadResult =
+        await uploadImageToCloudinary(
+          req.file.buffer,
+          "byas/gallery"
         );
 
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
+      if (image.imagePublicId) {
+        await cloudinary.uploader.destroy(
+          image.imagePublicId,
+          {
+            resource_type: "image",
+          }
+        );
       }
 
       image.imageUrl =
-        `/uploads/gallery/${req.file.filename}`;
+        uploadResult.secure_url;
+
+      image.imagePublicId =
+        uploadResult.public_id;
     }
 
     await image.save();
@@ -135,18 +143,13 @@ export async function deleteGalleryImage(
       });
     }
 
-    if (image.imageUrl) {
-      const imagePath = path.join(
-        process.cwd(),
-        image.imageUrl.replace(
-          /^\/uploads\//,
-          "uploads/"
-        )
+    if (image.imagePublicId) {
+      await cloudinary.uploader.destroy(
+        image.imagePublicId,
+        {
+          resource_type: "image",
+        }
       );
-
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
     }
 
     await image.deleteOne();

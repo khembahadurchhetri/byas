@@ -5,6 +5,7 @@ import path from "node:path";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import multer from "multer";
 
 import { connectDB } from "./config/db.js";
 
@@ -19,6 +20,7 @@ import achievementRoutes from "./routes/achievementRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 
 const app = express();
+app.set("trust proxy", 1);
 
 const PORT = Number(process.env.PORT) || 5000;
 
@@ -70,6 +72,46 @@ app.use("/api/team", teamRoutes);
 app.use("/api/achievements", achievementRoutes);
 
 app.use("/api/services", serviceRoutes);
+
+app.use(
+  (
+    error: unknown,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    if (error instanceof multer.MulterError) {
+      if (error.code === "LIMIT_FILE_SIZE") {
+        return res.status(413).json({
+          message:
+            "File is too large. Maximum allowed size is 25 MB for images or 50 MB for PDFs.",
+        });
+      }
+
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
+    if (error instanceof Error) {
+      const message = error.message;
+
+      if (message.includes("still too large after optimization")) {
+        return res.status(413).json({
+          message,
+        });
+      }
+
+      return res.status(500).json({
+        message,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Unexpected upload error",
+    });
+  },
+);
 
 async function startServer() {
   await connectDB();

@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 
+import { getAssetUrl } from "@/lib/api";
+
 interface SuccessStory {
   _id: string;
   name: string;
@@ -276,7 +278,7 @@ export default function AdminSuccessStoriesPage() {
             >
               {item.imageUrl && (
                 <img
-                  src={`${BACKEND_URL}${item.imageUrl}`}
+                  src={getAssetUrl(item.imageUrl)}
                   alt={item.name}
                   className="h-56 w-full object-cover"
                 />

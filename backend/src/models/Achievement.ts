@@ -19,6 +19,11 @@ const achievementSchema = new Schema(
       default: "",
     },
 
+    imagePublicId: {
+      type: String,
+      default: "",
+    },
+
     order: {
       type: Number,
       default: 1,
@@ -31,14 +36,11 @@ const achievementSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Achievement =
   mongoose.models.Achievement ||
-  mongoose.model(
-    "Achievement",
-    achievementSchema
-  );
+  mongoose.model("Achievement", achievementSchema);
 
 export default Achievement;

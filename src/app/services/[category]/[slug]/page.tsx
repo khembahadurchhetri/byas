@@ -5,6 +5,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import ServiceSidebar from "@/components/ServiceSidebar";
+import { getAssetUrl } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -184,7 +185,7 @@ export default async function ServiceDetailPage({
             <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white p-3 shadow-sm">
               {service.imageUrl ? (
                 <img
-                  src={`${API_URL}${service.imageUrl}`}
+                  src={getAssetUrl(service.imageUrl)}
                   alt={service.title}
                   className="mx-auto max-h-[720px] w-full rounded-2xl object-contain"
                 />

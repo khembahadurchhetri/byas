@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 
+import { getAssetUrl } from "@/lib/api";
+
 import ConfirmModal from "@/components/ConfirmModal";
 import RichTextEditor from "@/components/RichTextEditor";
 
@@ -404,7 +406,7 @@ export default function AdminNewsPage() {
                 >
                   {item.imageUrl && (
                     <img
-                      src={`${BACKEND_URL}${item.imageUrl}`}
+                      src={getAssetUrl(item.imageUrl)}
                       alt={item.title}
                       className="h-20 w-full rounded-xl object-cover sm:w-28"
                     />

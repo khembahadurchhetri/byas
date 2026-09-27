@@ -24,6 +24,11 @@ const successStorySchema = new Schema(
       default: "",
     },
 
+    imagePublicId: {
+      type: String,
+      default: "",
+    },
+
     published: {
       type: Boolean,
       default: true,
@@ -31,14 +36,11 @@ const successStorySchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const SuccessStory =
   mongoose.models.SuccessStory ||
-  mongoose.model(
-    "SuccessStory",
-    successStorySchema
-  );
+  mongoose.model("SuccessStory", successStorySchema);
 
 export default SuccessStory;

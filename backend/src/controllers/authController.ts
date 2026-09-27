@@ -8,24 +8,47 @@ import jwt from "jsonwebtoken";
 
 import Admin from "../models/Admin.js";
 
-function getCookieOptions() {
-  const isProduction =
+function isProduction() {
+  return (
     process.env.NODE_ENV ===
-    "production";
+    "production"
+  );
+}
 
+function getCookieOptions() {
   return {
     httpOnly: true,
-    secure: isProduction,
+
+    secure: isProduction(),
+
     sameSite:
-      isProduction
+      isProduction()
         ? ("none" as const)
         : ("lax" as const),
+
     maxAge:
       7 *
       24 *
       60 *
       60 *
       1000,
+
+    path: "/",
+  };
+}
+
+function getClearCookieOptions() {
+  return {
+    httpOnly: true,
+
+    secure: isProduction(),
+
+    sameSite:
+      isProduction()
+        ? ("none" as const)
+        : ("lax" as const),
+
+    path: "/",
   };
 }
 
@@ -34,8 +57,10 @@ export async function loginAdmin(
   res: Response
 ) {
   try {
-    const { email, password } =
-      req.body;
+    const {
+      email,
+      password,
+    } = req.body;
 
     if (
       !email?.trim() ||
@@ -71,9 +96,7 @@ export async function loginAdmin(
         admin.passwordHash
       );
 
-    if (
-      !passwordMatches
-    ) {
+    if (!passwordMatches) {
       return res
         .status(401)
         .json({
@@ -103,12 +126,14 @@ export async function loginAdmin(
         {
           adminId:
             admin._id.toString(),
+
           email:
             admin.email,
         },
         secret,
         {
-          expiresIn: "7d",
+          expiresIn:
+            "7d",
         }
       );
 
@@ -124,8 +149,10 @@ export async function loginAdmin(
       admin: {
         id:
           admin._id.toString(),
+
         email:
           admin.email,
+
         name:
           admin.name,
       },
@@ -151,23 +178,12 @@ export async function logoutAdmin(
 ) {
   res.clearCookie(
     "admin_token",
-    {
-      httpOnly: true,
-      secure:
-        process.env
-          .NODE_ENV ===
-        "production",
-      sameSite:
-        process.env
-          .NODE_ENV ===
-        "production"
-          ? "none"
-          : "lax",
-    }
+    getClearCookieOptions()
   );
 
   return res.json({
     success: true,
+
     message:
       "Logged out successfully.",
   });
@@ -213,8 +229,10 @@ export async function getCurrentAdmin(
     return res.json({
       id:
         admin._id.toString(),
+
       email:
         admin.email,
+
       name:
         admin.name,
     });
@@ -238,20 +256,24 @@ export async function changeAdminPassword(
   res: Response
 ) {
   try {
-    const authReq = req as Request & {
-      admin?: {
-        adminId: string;
-        email: string;
+    const authReq =
+      req as Request & {
+        admin?: {
+          adminId: string;
+          email: string;
+        };
       };
-    };
 
     const adminId =
       authReq.admin?.adminId;
 
     if (!adminId) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
+      return res
+        .status(401)
+        .json({
+          message:
+            "Unauthorized",
+        });
     }
 
     const {
@@ -263,17 +285,24 @@ export async function changeAdminPassword(
       !currentPassword ||
       !newPassword
     ) {
-      return res.status(400).json({
-        message:
-          "Current password and new password are required.",
-      });
+      return res
+        .status(400)
+        .json({
+          message:
+            "Current password and new password are required.",
+        });
     }
 
-    if (newPassword.length < 8) {
-      return res.status(400).json({
-        message:
-          "New password must be at least 8 characters.",
-      });
+    if (
+      newPassword.length <
+      8
+    ) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "New password must be at least 8 characters.",
+        });
     }
 
     const admin =
@@ -282,10 +311,12 @@ export async function changeAdminPassword(
       );
 
     if (!admin) {
-      return res.status(404).json({
-        message:
-          "Admin account not found.",
-      });
+      return res
+        .status(404)
+        .json({
+          message:
+            "Admin account not found.",
+        });
     }
 
     const correctPassword =
@@ -294,11 +325,15 @@ export async function changeAdminPassword(
         admin.passwordHash
       );
 
-    if (!correctPassword) {
-      return res.status(400).json({
-        message:
-          "Current password is incorrect.",
-      });
+    if (
+      !correctPassword
+    ) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Current password is incorrect.",
+        });
     }
 
     const samePassword =
@@ -308,10 +343,12 @@ export async function changeAdminPassword(
       );
 
     if (samePassword) {
-      return res.status(400).json({
-        message:
-          "New password must be different from the current password.",
-      });
+      return res
+        .status(400)
+        .json({
+          message:
+            "New password must be different from the current password.",
+        });
     }
 
     admin.passwordHash =
@@ -332,9 +369,11 @@ export async function changeAdminPassword(
       error
     );
 
-    return res.status(500).json({
-      message:
-        "Failed to change password.",
-    });
+    return res
+      .status(500)
+      .json({
+        message:
+          "Failed to change password.",
+      });
   }
 }

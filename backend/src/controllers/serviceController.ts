@@ -1,9 +1,8 @@
 import type { Request, Response } from "express";
 
-import fs from "node:fs";
-import path from "node:path";
-
+import cloudinary from "../config/cloudinary.js";
 import Service from "../models/Service.js";
+import { uploadImageToCloudinary } from "../utils/uploadToCloudinary.js";
 
 const serviceGroups = [
   "savings",
@@ -98,24 +97,6 @@ function parseSections(value: unknown) {
       .filter((section) => section.heading || section.content);
   } catch {
     return [];
-  }
-}
-
-function deleteOldImage(imageUrl?: string) {
-  if (!imageUrl) {
-    return;
-  }
-
-  try {
-    const relativePath = imageUrl.replace(/^\/uploads\//, "");
-
-    const fullPath = path.join(process.cwd(), "uploads", relativePath);
-
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
-    }
-  } catch (error) {
-    console.error("Service image cleanup error:", error);
   }
 }
 
@@ -216,6 +197,19 @@ export async function createService(req: Request, res: Response) {
 
     const slug = await uniqueSlug(cleanTitle);
 
+    let imageUrl = "";
+    let imagePublicId = "";
+
+    if (req.file) {
+      const uploadResult = await uploadImageToCloudinary(
+        req.file.buffer,
+        "byas/services",
+      );
+
+      imageUrl = uploadResult.secure_url;
+      imagePublicId = uploadResult.public_id;
+    }
+
     const service = await Service.create({
       title: cleanTitle,
 
@@ -231,7 +225,8 @@ export async function createService(req: Request, res: Response) {
 
       sections: type === "content" ? parseSections(req.body.sections) : [],
 
-      imageUrl: req.file ? `/uploads/services/${req.file.filename}` : "",
+      imageUrl,
+      imagePublicId,
 
       externalUrl: externalUrl?.trim() || "",
 
@@ -289,9 +284,7 @@ export async function updateService(req: Request, res: Response) {
         });
       }
 
-      
-        service.slug = await uniqueSlug(cleanTitle, service.id);
-      
+      service.slug = await uniqueSlug(cleanTitle, service.id);
 
       service.title = cleanTitle;
     }
@@ -333,9 +326,19 @@ export async function updateService(req: Request, res: Response) {
     }
 
     if (req.file) {
-      deleteOldImage(service.imageUrl);
+      const uploadResult = await uploadImageToCloudinary(
+        req.file.buffer,
+        "byas/services",
+      );
 
-      service.imageUrl = `/uploads/services/${req.file.filename}`;
+      if (service.imagePublicId) {
+        await cloudinary.uploader.destroy(service.imagePublicId, {
+          resource_type: "image",
+        });
+      }
+
+      service.imageUrl = uploadResult.secure_url;
+      service.imagePublicId = uploadResult.public_id;
     }
 
     await service.save();
@@ -362,7 +365,11 @@ export async function deleteService(req: Request, res: Response) {
       });
     }
 
-    deleteOldImage(service.imageUrl);
+    if (service.imagePublicId) {
+      await cloudinary.uploader.destroy(service.imagePublicId, {
+        resource_type: "image",
+      });
+    }
 
     await service.deleteOne();
 

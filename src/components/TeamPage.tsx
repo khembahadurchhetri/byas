@@ -1,3 +1,5 @@
+import { getAssetUrl } from "@/lib/api";
+
 interface TeamMember {
   _id: string;
   name: string;
@@ -106,7 +108,7 @@ function TeamCard({ member }: { member: TeamMember }) {
       <div className="aspect-[4/4.5] overflow-hidden bg-gray-100">
         {member.imageUrl ? (
           <img
-            src={`${BACKEND_URL}${member.imageUrl}`}
+            src={getAssetUrl(member.imageUrl)}
             alt={member.name}
             className="h-full w-full object-cover transition duration-500 hover:scale-[1.02]"
           />

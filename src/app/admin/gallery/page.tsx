@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
+import { getAssetUrl } from "@/lib/api";
+
 interface GalleryItem {
   _id: string;
   title: string;
@@ -215,7 +217,7 @@ export default function AdminGalleryPage() {
               className="overflow-hidden rounded-lg bg-white shadow-sm"
             >
               <img
-                src={`${BACKEND_URL}${item.imageUrl}`}
+                src={getAssetUrl(item.imageUrl)}
                 alt={item.title || "Gallery image"}
                 className="h-56 w-full object-cover"
               />

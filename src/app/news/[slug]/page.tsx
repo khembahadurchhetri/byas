@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 
+import { getAssetUrl } from "@/lib/api";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 interface NewsItem {
@@ -81,7 +83,7 @@ export default async function NewsArticlePage({
         {news.imageUrl && (
           <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-3xl border bg-white p-2 shadow-sm">
             <img
-              src={`${API_URL}${news.imageUrl}`}
+              src={getAssetUrl(news.imageUrl)}
               alt={news.title}
               className="max-h-[480px] w-full rounded-2xl object-cover"
             />

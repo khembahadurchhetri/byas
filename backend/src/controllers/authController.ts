@@ -6,7 +6,10 @@ import jwt from "jsonwebtoken";
 import Admin from "../models/Admin.js";
 
 function isProduction() {
-  return process.env.NODE_ENV === "production";
+  return (
+    process.env.NODE_ENV === "production" ||
+    process.env.FRONTEND_URL?.startsWith("https://")
+  );
 }
 
 function getCookieOptions() {
